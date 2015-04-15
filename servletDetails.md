@@ -31,3 +31,39 @@
   }
 }
 ```
+# Quiz
+```
+{
+  name: Quiz.java,
+}
+```
+# EditWord
+```
+{
+  name: EditWord.java,
+}
+```
+# ListWords
+```
+{
+  name: ListWords.java
+}
+```
+# MembersArea
+```
+{
+  name: MembersArea.java
+}
+```
+# TestHistory
+```
+{
+  name: TestHistory.java
+}
+```
+# MemberEdit
+```
+{
+  name: MemberEdit.java
+}
+```
