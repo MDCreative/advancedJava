@@ -5,7 +5,7 @@
 
 # Data
 ``` javascript
-User{
+user{
 	user_id: int,
 	type: int,
 	username: string,
@@ -19,21 +19,33 @@ User Types{
 }
 */
 
-TestHistory{
+test_history{
 	user_id: int,
 	score: int,
 	date: timestamp
 }
 
-Word{
+word{
+	id: int,
 	word: string,
-	category: string,
+	category: int,
 	translation: string,
 	gender: int,  [0 = none, 1 = masculine, 2 = feminine, 3 = neutral, 4 = m/f, 5 = plural]
 	total_tests: int,
 	alternate_sex: int,
 	correct_ans: int,
 	incorrect_ans: int
+}
+
+category{
+	id: int,
+	name: string,
+	topic_area: int
+}
+
+topic_area{
+	id: int,
+	name: string
 }
 ```
 # Additional Functionality
