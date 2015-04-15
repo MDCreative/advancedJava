@@ -23,7 +23,7 @@
     email,
     type,
     password,
-    passwordConf
+    confpassword
   },
   return: {
     success: registerSuccess.html,
