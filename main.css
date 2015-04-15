@@ -29,3 +29,24 @@ body {
 #errorReg:target{
 	display:block;
 }
+
+#error{
+    display:none;
+}
+#error:target{
+    display:block;
+}
+.centerMe{
+    margin:0 auto;
+    display: block !important;
+}
+.nobord{
+    box-shadow:0 0 0 0 #FFF !important;
+    margin-top:10px !important;
+}
+.question{
+   
+}
+.curQuestion{
+    display:block;
+}
