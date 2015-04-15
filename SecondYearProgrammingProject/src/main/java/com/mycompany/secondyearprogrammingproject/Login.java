@@ -5,22 +5,28 @@ package com.mycompany.secondyearprogrammingproject;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
- * Uses POST to get a username and password from a user and displays the username
- * along with a greeting
+ * Uses POST to get a username and password from a user and displays the
+ * username along with a greeting
+ *
  * @author Jason Hall, James Jackson
  */
 public class Login extends HttpServlet {
 
-    
     /**
      * Handles the HTTP <code>POST</code> method.
      *
@@ -34,8 +40,12 @@ public class Login extends HttpServlet {
             throws ServletException, IOException {
         // Set response content type
         response.setContentType("text/html");
-        Boolean nameNotSupplied = "".equals(request.getParameter("username"));
-        Boolean passNotSupplied = "".equals(request.getParameter("password"));
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        Boolean nameNotSupplied = "".equals(username);
+        Boolean passNotSupplied = "".equals(password);
         PrintWriter out = response.getWriter();
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -43,16 +53,33 @@ public class Login extends HttpServlet {
         out.println("<title>Login</title>");
         out.println("</head>");
         out.println("<body>");
-        if(nameNotSupplied || passNotSupplied){
+        if (nameNotSupplied || passNotSupplied) {
             out.println("<p>Please supply a username and password</p>");
         } else {
-            out.println("<p>Hello "+request.getParameter("username")+". Here are the facilities you can use:</p>");
-            /**
-             * <ul>
-             *      <li> LINK <\li>
-             *          ...
-             * and so on...
-             */
+            //out.println("<p>Hello "+request.getParameter("username")+". Here are the facilities you can use:</p>");
+            Connection conn = null;
+            try {
+                // DB check stuff
+                SimpleDataSource.init("/database.properties");
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Register.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                conn = SimpleDataSource.getConnection();
+                Statement stat = conn.createStatement();
+                ResultSet result = stat.executeQuery("SELECT * FROM `user` WHERE `username` = \"" + username + "\";");
+                if (result.next()) { // if already a login
+                    int userType = result.getInt("type");
+                    HttpSession session = request.getSession(); // creates a session.
+                    session.setAttribute("type", userType); 
+                    session.setAttribute("username", username); 
+                    response.sendRedirect("MembersArea"); // goes to members area to check type.
+                } else { // if it is not already a login
+                    out.println("Sorry this username is not in our database.");
+                }
+            } catch (SQLException e) {
+
+            }
         }
         out.println("</body>");
         out.println("</html>");

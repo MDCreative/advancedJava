@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -40,6 +41,17 @@ public class MembersArea extends HttpServlet {
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet MembersArea at " + request.getContextPath() + "</h1>");
+            // show appropriate stuff for type.
+            HttpSession session = request.getSession(); // get a session.
+            int type = (int) session.getAttribute("type");
+            if(type == 0){ // the out.println's will be different stuff to show the appropriate user types.
+                out.println("blarg");
+                // response.sendRedirect("URL OF THE HTML FOR STUDENT LOGINS");
+            }else if(type == 1){
+                out.println("gargamel");
+            }else{
+                out.println("parflui");
+            }
             out.println("</body>");
             out.println("</html>");
         }

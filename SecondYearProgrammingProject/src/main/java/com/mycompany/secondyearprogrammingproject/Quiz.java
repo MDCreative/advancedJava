@@ -39,6 +39,8 @@ public class Quiz extends HttpServlet {
             out.println("<title>Servlet Quiz</title>");            
             out.println("</head>");
             out.println("<body>");
+            
+            //out.println(request.getSession().getAttribute("username"));
             out.println("<h1>Servlet Quiz at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");

@@ -76,7 +76,7 @@ public class Register extends HttpServlet {
                 if(!result.next()){ // if not already a login
                      stat.executeUpdate("INSERT INTO `user` (username, password, type) VALUES (\""+ username + "\",\"" + password + "\"," + "0" + ");");
                 }else{ // if it is already a login
-                    out.println("IMPOSSIBRU!");
+                    out.println("Sorry this username is take please go backa an re-enter a different username.");
                 }
                 
             } catch (SQLException ex) {
