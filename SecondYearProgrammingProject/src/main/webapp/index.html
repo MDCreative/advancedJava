@@ -5,6 +5,7 @@
     <title>Deutsche Akademie</title>
     <meta name="description" content="">
     <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
@@ -15,13 +16,12 @@
 
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="main.css">
-    <link rel="stylesheet" href="style.css" type="text/css"/>
-
     <!-- endbuild -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript">
     $(document).ready(function(){
       $('#pass2, #pass1').on('keyup', function(){
+
         if($('#pass1').val() == $('#pass2').val()){
           $('#pass2').parent().removeClass("error");
           console.log("change");
@@ -37,8 +37,10 @@
     <nav class="ui fixed menu inverted navbar">
         <a href="" class="brand item">Deutsche Akademie</a>
         <a href="" class="active item">Home</a>
-        <a href="" class="item">Features</a>
-        <a href="" class="item">Contact</a>
+        <a href="" class="item">Edit Word</a>
+        <a href="" class="item">List Words</a>
+        <a href="" class="item">Take Test</a>
+        <a href="" class="item">Test History</a>
     </nav> <!-- end nav -->
 
     <main class="ui page grid">
@@ -54,7 +56,7 @@
                           <div class="header">
                             Login Failed
                           </div>
-                          <p>Those credentials don't match anything in our database please try again
+                          <p>Those credentials don't match anything in out database please try again
                         </p></div>
                         <p class="field"><label>User Name</label><input type="text" name="username" placeholder="username"></p>
                         <p class="field"><label>Password</label><input type="password" name="password" placeholder="password"></p>
