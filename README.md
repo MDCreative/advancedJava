@@ -29,7 +29,7 @@ Word{
 	word: string,
 	category: string,
 	translation: string,
-	gender: int,  [0 = none, 1 = masculine, 2 = feminine, 3 = neutral, 4 = m/f, 5 = nuetral]
+	gender: int,  [0 = none, 1 = masculine, 2 = feminine, 3 = neutral, 4 = m/f, 5 = plural]
 	total_tests: int,
 	alternate_sex: int,
 	correct_ans: int,
