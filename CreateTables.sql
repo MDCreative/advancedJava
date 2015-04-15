@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password` VARCHAR(20),
   `type` INT NOT NULL,
   PRIMARY KEY `user_id` (`user_Id`)
-);# MySQL returned an empty result set (i.e. zero rows).
+);
 
 
 CREATE TABLE IF NOT EXISTS `test_history` (
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `test_history` (
   `score` INT ,
   `date` TIMESTAMP,
   PRIMARY KEY `user_id` (`user_Id`)
- );# MySQL returned an empty result set (i.e. zero rows).
+ );
 
 
 CREATE TABLE IF NOT EXISTS `word`(
@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS `word`(
     `alternate_sex` INT NOT NULL,
     `incorrect_ans` INT NOT NULL,
     PRIMARY KEY `word` (`word`)
-);# MySQL returned an empty result set (i.e. zero rows).
+);
 
 ALTER TABLE `test_history`
 	ADD CONSTRAINT `fk_test_history_user` FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`) ON UPDATE CASCADE
+-- Create foreign key, user_id from user table 
