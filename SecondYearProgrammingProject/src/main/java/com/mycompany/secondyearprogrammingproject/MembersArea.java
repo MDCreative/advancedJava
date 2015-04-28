@@ -6,9 +6,15 @@ package com.mycompany.secondyearprogrammingproject;
  * and open the template in the editor.
  */
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
+import static javax.servlet.SessionTrackingMode.URL;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,27 +39,32 @@ public class MembersArea extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet MembersArea</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet MembersArea at " + request.getContextPath() + "</h1>");
-            // show appropriate stuff for type.
+            URL file = this.getClass().getResource("/header.html");
+            DocTemplate dt = new DocTemplate(file);
+            
             HttpSession session = request.getSession(); // get a session.
+            
             int type = (int) session.getAttribute("type");
-            if(type == 0){ // the out.println's will be different stuff to show the appropriate user types.
-                out.println("blarg");
-                // response.sendRedirect("URL OF THE HTML FOR STUDENT LOGINS");
-            }else if(type == 1){
-                out.println("gargamel");
-            }else{
-                out.println("parflui");
+            if(type == 0){ // Student
+                dt.replacePlaceholder("TITLE", "Student Lobby");
+                dt.replacePlaceholder("CONTENT", "Content Here");
+               
+            }else if(type == 1){ // instructor
+                dt.replacePlaceholder("TITLE", "Instructor Lobby");
+                dt.replacePlaceholder("CONTENT", "Content Here");
+            }else if(type == 2 || type == 3){ // administrator
+                dt.replacePlaceholder("TITLE", "Administrator Lobby");
+                URL regStr = this.getClass().getResource("/register.html");
+                String reg = DocTemplate.getHTMLString(regStr);
+                dt.replacePlaceholder("CONTENT", reg);
             }
-            out.println("</body>");
-            out.println("</html>");
+            System.out.println(dt.getTheDoc());
+            out.print(dt.getTheDoc());  
+            
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -50,6 +51,13 @@ public class Register extends HttpServlet {
         Boolean emailNotSupplied = "".equals(email);
         
         PrintWriter out = response.getWriter();
+        
+        HttpSession session = request.getSession(); 
+        int type = (int) session.getAttribute("type");
+        if(type != 2){
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            out.println("You cannot do that!!!!");
+        } else {
         out.println("<!DOCTYPE html>");
         out.println("<html>");
         out.println("<head>");
@@ -93,6 +101,7 @@ public class Register extends HttpServlet {
                     "</body>");
             out.println(
                     "</html>");
+        }
         }
     }
 }
