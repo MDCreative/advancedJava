@@ -11,6 +11,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -55,8 +59,9 @@ public class MembersArea extends HttpServlet {
             }else if(type == 2 || type == 3){ // administrator
                 dt.replacePlaceholder("TITLE", "Administrator Lobby");
                 URL regStr = this.getClass().getResource("/register.html");
-                String reg = DocTemplate.getHTMLString(regStr);
-                dt.replacePlaceholder("CONTENT", reg);
+                String admin = DocTemplate.getHTMLString(regStr);
+                admin += "<table>"+getMembers()+"</table>";
+                dt.replacePlaceholder("CONTENT", admin);
             }
             System.out.println(dt.getTheDoc());
             out.print(dt.getTheDoc());  
@@ -66,6 +71,35 @@ public class MembersArea extends HttpServlet {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private String getMembers(){
+        try {
+            SimpleDataSource.init("/database.properties");
+        } catch (IOException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Connection conn;
+        try {
+            conn = SimpleDataSource.getConnection();
+            Statement stat = conn.createStatement();
+            ResultSet result = stat.executeQuery("SELECT * FROM `user`;");
+            String rows = "";
+            while(result.next()){ // if not already a login
+                String name = result.getString("username");
+                String type = result.getString("type");
+                String email = result.getString("email");
+                String row = "<tr><td>"+name+"</td><td>"+type+"</td><td>"+email+"</td></tr>";
+                rows += row;
+            }
+            conn.close();
+            return rows;
+        } catch (SQLException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

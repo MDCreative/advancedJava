@@ -76,13 +76,14 @@ public class Register extends HttpServlet {
             
             Connection conn = null;
             try{
+                
                 conn = SimpleDataSource.getConnection();
                 Statement stat = conn.createStatement();
                 
                 // look up user
                 ResultSet result = stat.executeQuery("SELECT * FROM `user` WHERE `username` = \"" + username + "\";");
                 if(!result.next()){ // if not already a login
-                     stat.executeUpdate("INSERT INTO `user` (username, password, type) VALUES (\""+ username + "\",\"" + password + "\"," + "0" + ");");
+                     stat.executeUpdate("INSERT INTO `user` (username, email, password, type) VALUES (\""+ username + "\",\""+ email + "\",\"" + password + "\"," + "0" + ");");
                 }else{ // if it is already a login
                     out.println("Sorry this username is take please go backa an re-enter a different username.");
                 }
@@ -91,6 +92,7 @@ public class Register extends HttpServlet {
                 Logger.getLogger(Register.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 try {
+                    response.sendRedirect("MembersArea#regd");
                     conn.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(Register.class.getName()).log(Level.SEVERE, null, ex);
