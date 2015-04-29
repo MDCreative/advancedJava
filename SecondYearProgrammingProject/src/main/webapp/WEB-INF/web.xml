@@ -28,6 +28,10 @@
         <servlet-name>TestHistory</servlet-name>
         <servlet-class>TestHistory</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>TestHistoryServlet</servlet-name>
+        <servlet-class>com.mycompany.secondyearprogrammingproject.TestHistoryServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -55,6 +59,10 @@
     <servlet-mapping>
         <servlet-name>TestHistory</servlet-name>
         <url-pattern>/TestHistory</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TestHistoryServlet</servlet-name>
+        <url-pattern>/TestHistoryServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

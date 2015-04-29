@@ -20,8 +20,30 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.13.0/javascript/semantic.min.js"></script>
   <script type="text/javascript">
-    $(document).ready(function(){
-      $('.ui.dropdown').dropdown();
+    $(document).ready(function()
+    {
+        $("#mainContent").hide();
+        
+        $.ajax("TestHistoryServlet?id=407").done(function(data)
+        {
+            $("#mainContent").show();
+            $("#loaderRow").hide();
+            
+            for(var row in data)
+            {
+                var formattedTime = new Date(data[row].date);
+                formattedTime = formattedTime.toDateString() + ", " + formattedTime.toLocaleTimeString();
+                
+                $("#mainContent .ui.table").append(
+                    '<tr>' +
+                        '<td>' + data[row].test_id + '</td>' +
+                        '<td>' + data[row].score   + '</td>' +
+                        '<td>' + formattedTime     + '</td>' +
+                    '</tr>'
+                );
+            }
+            
+        });
     });
   </script>
 </head>
@@ -31,15 +53,38 @@
     <a href="" class="brand item">Deutsche Akademie</a>
     <a href="" class="item">Home</a>
     <a href="" class="item">Edit Word</a>
-    <a href="" class="active item">List Words</a>
+    <a href="" class="item">List Words</a>
     <a href="" class="item">Take Test</a>
-    <a href="" class="item">Test History</a>
+    <a href="" class="active item">Test History</a>
   </nav> <!-- end nav -->
 
   <main class="ui page grid">
+     <div class="row" id="loaderRow">
+        <div class="ui segment">
+                <div class="ui active inverted dimmer">
+                        <div class="ui large indeterminate loader"></div>
+                </div>
+            <p></p>
+        </div>
+    </div>
+      
     <div class="row">
       <div class="center aligned starter column">
         <h1 class="ui header">Your Progress</h1>
+        
+        <div class="ui fluid segment" id="mainContent">
+            <p>Here is the history of the tests you have took.</p>
+            
+            <table class="ui three column celled striped table">
+                <thead>
+                    <tr>
+                    <th>Quiz ID</th>
+                    <th>Score</th>
+                    <th>Date</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
       </div>
     </div>
 
