@@ -23,6 +23,7 @@
     var questions;
     var currentQuestion = 0;
     var questionScores = [];
+    var questionAttempts = [];
 	
     $(window).load(function()
     {
@@ -32,6 +33,7 @@
     $(document).ready(function()
     {
       $("#mainContent").hide();
+      $("#results").hide();
       
       $.ajax("Quiz").done(function(data)
       {
@@ -39,11 +41,25 @@
         console.dir(questions);
         $(".ui.active.inverted.dimmer").removeClass("active");
         $("#loaderRow").hide();
-        //$("#mainContent").show();
+        $("#mainContent").show();
+        
+        for(var i = 1; i < questions.length; i++)
+        {
+            $(".ui.ordered.steps").append(
+                '<div class="step">' +
+                '<div class="content">' +
+                    '<div class="title">' + (i + 1) + '</div>' +
+                '</div>' +
+                '</div>'
+  
+           );
+        }
+        
         updateQuestion();
       });
+
       
-      $(".nextButton").click(function()
+      $(".nextButton").on("click", function()
       {
           if(questions[currentQuestion].type < 2)
           {
@@ -59,6 +75,8 @@
                  
               else
                   questionScores.push(0);
+              
+              questionAttempts.push($("#answer-input").prop("value"));
           }
           else
           {
@@ -67,10 +85,12 @@
               
               else
                   questionScores.push(0);
-                  
+              
+              questionAttempts.push($(".ui.dropdown").dropdown("get text"));
           }
           
-          console.log(questionScores);
+          //console.log(questionScores);
+          //console.log(questionAttempts);
           
           currentQuestion++;
           
@@ -79,7 +99,9 @@
         
           else
           {
-              
+              $("#mainContent").hide();
+              updateResults();
+              $("#results").show();
           }
       })
       
@@ -110,7 +132,7 @@
             $(".gender-question-inputs").hide();
         }
         
-        $("#answer-input").prop("value", "");   
+        //$("#answer-input").prop("value", "");   
         
         var activeStep = $('.ui.ordered.steps').find(".active.step");
                                 
@@ -121,6 +143,75 @@
         }
         //children[currentQuestion].addClass("active");
     }
+    
+    function updateResults()
+    {
+        var score = questionScores.reduce(function(a, b) { return a + b; });
+        
+        $(".result-text").text(score + " out of " + questions.length + " (" + Math.round(score / questions.length * 100.0) + "%)");
+        
+        var builtString = "";
+        
+        for(var i = 0; i < questions.length; i++)
+        {
+            var icon = "checkmark icon", feedback = "positive";
+            
+            if(questions[i].answer.toLowerCase() !== questionAttempts[i].toLowerCase())
+                icon = "remove icon", feedback = "negative";
+            
+            builtString += 
+                '<div class="ui attached ' + feedback + ' message">' +
+                    '<h2 class="ui header">' +
+                        'Question #' + (i + 1) +
+                        '<i class="' + icon + '"></i>' +
+                    '</h2>' +
+                    '<p>Your answer was <b>"' + questionAttempts[i] + '"</b> and the correct answer was <b>"' + questions[i].answer + '"</b>.</p>' +
+                '</div>';
+        }
+        
+        $("#results .ui.attached.segment").append(builtString);
+        
+        $("#results .ui.attached.segment").append(
+          '<div class="ui button finishButton">' +
+                  'Finish' +
+                '</div>'      
+        );
+
+        $(".finishButton").css("margin-top", "25px");
+        
+        $(".finishButton").on('click', function()
+        {            
+            var tempQuestions = questions;
+            
+            var incorrectQuestions = "", correctQuestions = "";
+            
+            for(var question in tempQuestions)
+            {
+                tempQuestions[question]["attempt"] = questionAttempts[question];
+                tempQuestions[question]["correct"] = questionAttempts[question].toLowerCase() == questions[question].answer.toLowerCase();
+                
+                if(tempQuestions[question].correct)
+                    correctQuestions += tempQuestions[question].id + " ";
+                
+                else
+                    incorrectQuestions += tempQuestions[question].id + " ";
+            }
+            
+            $(this).addClass("loading");
+                        
+            $.post("Quiz", 
+            { 
+                score : score,
+                data : JSON.stringify(tempQuestions),
+                incorrectQuestions : incorrectQuestions.trim(),
+                correctQuestions : correctQuestions.trim()
+            }).done(function()
+            {
+                $(".finishButton").removeClass("loading");
+                window.location.href = "/SecondYearProgrammingProject/index.html";
+            })
+        });
+    }
   </script>
 </head>
 <body class="home">
@@ -129,8 +220,8 @@
     <a href="" class="brand item">Deutsche Akademie</a>
     <a href="" class="item">Home</a>
     <a href="" class="item">Edit Word</a>
-    <a href="" class="active item">List Words</a>
-    <a href="" class="item">Take Test</a>
+    <a href="" class="item">List Words</a>
+    <a href="" class="active item">Take Test</a>
     <a href="" class="item">Test History</a>
   </nav> <!-- end nav -->
  
@@ -151,14 +242,6 @@
             </div>
             <div class="ui attached fluid segment">
                 <p>You scored a possible <span class="result-text">20 out of 20</span> points. Your results for each question are as follows:</p>
-                <div class="ui attached positive message">
-                    <h2 class="ui header">
-                        Question #1
-                        <i class="checkmark icon"></i>
-                    </h2>
-                    <p>Your answer was <b>"blah"</b> and the correct answer was <b>"eggs"</b>.</p>
-                </div>
-
             </div>
         </div>
     </div>
@@ -166,107 +249,12 @@
     <div class="row" id="mainContent">
       <div class="center aligned starter column">
         <h1 class="ui header">The Test</h1>
-        <p>Take the test</p>
+        <p>Take the Deutsche Akademie test, and test your knowledge of German!</p>
 
         <div class="ui small ordered steps">
           <div class="active step">
             <div class="content">
               <div class="title">1</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">2</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">3</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">4</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">5</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">6</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">7</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">8</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">9</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">10</div>
-            </div>
-          </div>
-            <div class="step">
-            <div class="content">
-              <div class="title">11</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">12</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">13</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">14</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">15</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">16</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">17</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">18</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">19</div>
-            </div>
-          </div>
-          <div class="step">
-            <div class="content">
-              <div class="title">20</div>
             </div>
           </div>
         </div>
@@ -289,10 +277,9 @@
                 
                 <div class="ui selection dropdown" id="category">
                     <input type="hidden" name="gender">
-                    <div class="default text">Gender</div>
+                    <div class="default text">None</div>
                     <i class="dropdown icon"></i>
                     <div class="menu">
-                        <div class="item" data-value="1">None</div>
                         <div class="item" data-value="2">Masculine</div>
                         <div class="item" data-value="3">Feminine</div>
                         <div class="item" data-value="4">Neuter</div>

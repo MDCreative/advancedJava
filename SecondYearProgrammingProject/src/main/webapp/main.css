@@ -4,6 +4,11 @@ body {
     font-family: "Open Sans", serif;
 }
 
+#results .icon
+{
+    padding-left:10px;
+}
+
 #loaderRow 
 {
     margin-top:35px;

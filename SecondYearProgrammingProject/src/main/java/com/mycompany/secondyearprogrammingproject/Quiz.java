@@ -3,6 +3,7 @@ package com.mycompany.secondyearprogrammingproject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * The quiz servlet, which generates randomly distributed distinct questions.
@@ -19,7 +21,110 @@ import javax.servlet.http.HttpServletResponse;
 */
 public class Quiz extends HttpServlet
 {    
-    private Random rand = new Random();
+    private Random rand;
+    
+    public Quiz()
+    {
+        rand = new Random();
+        
+        if(SimpleDataSource.isInitialized())
+            return;
+        
+        try
+        {            
+            //Try and initialize the database from the properties file.
+            SimpleDataSource.init("/database.properties");
+        }
+        catch(IOException | ClassNotFoundException e)
+        {
+            System.out.println("[error] Couldn't initialize the database properties file.");
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    private String join(String[] array)
+    {
+        String returnValue = "";
+        
+        for(int i = 0; i < array.length; i++)
+            returnValue += array[i] + ((i < array.length - 1) ? (", ") : (""));
+        
+        return returnValue;
+    }
+    
+    private void updateCorrectQuestions(String correct, String incorrect) throws SQLException
+    {
+        String correctAnswers = join(correct.split(" "));
+        String incorrectAnswers = join(incorrect.split(" "));
+        
+        Connection connection = SimpleDataSource.getConnection();
+        Statement statement = connection.createStatement();
+        
+        String query = "UPDATE `word` SET `correct_ans` = (`correct_ans` + 1) WHERE `id` IN (" + correctAnswers + ");";
+        statement.executeUpdate(query);
+        
+        query = "UPDATE `word` SET `incorrect_ans` = (`correct_ans` + 1) WHERE `id` IN (" + incorrectAnswers + ");";
+        statement.executeUpdate(query);
+    }
+    
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException
+    {
+        String quizData = request.getParameter("data");
+        String incorrectQuestions = request.getParameter("incorrectQuestions");
+        String correctQuestions = request.getParameter("correctQuestions");
+        
+        int score = Integer.parseInt(request.getParameter("score"));
+            
+        HttpSession session = request.getSession();
+        
+        //int id = Integer.parseInt(session.getAttribute("id"));
+        int id = rand.nextInt(500);
+        
+        Connection connection = null;
+        PreparedStatement statement = null;
+        
+        try
+        {
+            connection = SimpleDataSource.getConnection();
+            
+            statement = connection.prepareStatement("INSERT INTO `test_history` (`user_id`, `score`, `data`) VALUES (?, ?, ?);");
+            
+            statement.setInt(1, id);
+            statement.setInt(2, score);
+            statement.setString(3, quizData);
+            
+            statement.executeUpdate();       
+            
+            updateCorrectQuestions(correctQuestions, incorrectQuestions);
+        }
+        catch(SQLException e)
+        {
+            System.out.println("[error] Failed to insert quiz data into the database: ");
+            System.out.println(e.getMessage());
+        }
+        finally
+        {
+            try
+            {
+                connection.close();
+                statement.close();
+            }
+            catch(SQLException e)
+            {
+                System.out.println("[error] Failed to close connection or statement objects.");
+            }
+        }
+    }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -70,57 +175,54 @@ public class Quiz extends HttpServlet
      * @throws SQLException 
      */
     private Question[] generateQuestions(int amount) throws SQLException
-    {
-        try
-        {
-            //Try and initialize the database from the properties file.
-            SimpleDataSource.init("/database.properties");
-        }
-        catch(IOException | ClassNotFoundException e)
-        {
-            System.out.println("[error] Couldn't initialize the database properties file.");
-            System.out.println(e.getMessage());
-            return null;
-        }
-        
-        //Get a connection and a new statement to work with
-        Connection connection = SimpleDataSource.getConnection();
-        Statement statement = connection.createStatement();
-        
-        //Select 20 random words to question upon (distinct)
-        ResultSet rs = statement.executeQuery("SELECT DISTINCT `translation`, `word`, `gender` FROM `word` ORDER BY RAND() LIMIT " + amount + ";");
-       
-        //Generate a new allocated array space for the return values
+    {        
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet rs = null;
         Question[] returnValues = new Question[amount];
         
-        //The index to add questions into the array with
-        int idx = 0;
-        
-        while(rs.next())
+        try
         {
-            //While there are more results, grab it and each column
-            String english = rs.getString("translation");
-            String german  = rs.getString("word");
-            int gender     = rs.getInt("gender");
-            
-            //Generate a random question type
-            int questionType = rand.nextInt(3);
-                    
-            //And add into the array depending on the question type.
-            if(questionType == Question.TYPE_ENGLISH_TO_GERMAN)
-                returnValues[idx++] = new Question(questionType, english, german);
-            
-            else if(questionType == Question.TYPE_GERMAN_TO_ENGLISH)
-                returnValues[idx++] = new Question(questionType, german, english);
-            
-            else if(questionType == Question.TYPE_GENDER)
-                returnValues[idx++] = new Question(questionType, german, getGenderWord(gender));
-            
+            //Get a connection and a new statement to work with
+            connection = SimpleDataSource.getConnection();
+            statement = connection.createStatement();
+
+            //Select 20 random words to question upon (distinct)
+            rs = statement.executeQuery("SELECT DISTINCT `id`, `translation`, `word`, `gender` FROM `word` ORDER BY RAND() LIMIT " + amount + ";");
+
+            //The index to add questions into the array with
+            int idx = 0;
+
+            while(rs.next())
+            {
+                //While there are more results, grab it and each column
+                String english = rs.getString("translation");
+                String german  = rs.getString("word");
+                int gender     = rs.getInt("gender");
+                int id         = rs.getInt("id");
+                
+                //Generate a random question type
+                int questionType = rand.nextInt(3);
+
+                //And add into the array depending on the question type.
+                if(questionType == Question.TYPE_ENGLISH_TO_GERMAN)
+                    returnValues[idx++] = new Question(id, questionType, english, german);
+
+                else if(questionType == Question.TYPE_GERMAN_TO_ENGLISH)
+                    returnValues[idx++] = new Question(id, questionType, german, english);
+
+                else if(questionType == Question.TYPE_GENDER)
+                    returnValues[idx++] = new Question(id, questionType, german, getGenderWord(gender));
+
+            }
         }
-        
-        //Finishing up, and returning the values
-        statement.close();
-        connection.close();
+        finally
+        {
+            //Finishing up, and returning the values
+            rs.close();
+            statement.close();
+            connection.close();
+        }
         
         return returnValues;
     }
@@ -156,16 +258,19 @@ public class Quiz extends HttpServlet
         private int questionType;
         private String word;
         private String answer;
+        private int id;
         
         /**
          * Constructs a new question with the given parameters.
          * 
+         * @param id The question's unique ID.
          * @param questionType The question type to ask.
          * @param word The word to quiz on.
          * @param answer The answer to the question.
          */
-        public Question(int questionType, String word, String answer)
+        public Question(int id, int questionType, String word, String answer)
         {
+            this.id = id;
             this.questionType = questionType;
             this.word = word;
             this.answer = answer;
@@ -183,7 +288,8 @@ public class Quiz extends HttpServlet
             String returnString = "";
             
             //Simply add each property to the return string and return it
-            returnString += "{\"type\":"   + questionType   + ",";
+            returnString += "{\"type\":"    + questionType  + ",";
+            returnString += "\"id\":"       + id            + ",";
             returnString += "\"word\":\""   + word.trim()   + "\",";
             returnString += "\"answer\":\"" + answer.trim() + "\"}";
             

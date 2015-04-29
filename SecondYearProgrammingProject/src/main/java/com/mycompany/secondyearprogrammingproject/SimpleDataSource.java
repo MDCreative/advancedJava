@@ -13,8 +13,15 @@ public class SimpleDataSource {
     private static String url;
     private static String usr;
     private static String pwd;
-
-    public static void init(String fileName) throws IOException, ClassNotFoundException {
+    private static boolean initialized;
+    
+    public static boolean isInitialized()
+    {
+        return initialized;
+    }
+    
+    public static void init(String fileName) throws IOException, ClassNotFoundException 
+    {
         Properties props = new Properties();
         InputStream in = SimpleDataSource.class.getResourceAsStream(fileName);
         props.load(in);
@@ -26,6 +33,8 @@ public class SimpleDataSource {
         if (driver != null) {
             Class.forName(driver);
         }
+        
+        initialized = true;
     }
 
     public static Connection getConnection() throws SQLException {
