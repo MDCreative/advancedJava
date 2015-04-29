@@ -43,7 +43,7 @@ public class Login extends HttpServlet {
 
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-
+        
         Boolean nameNotSupplied = "".equals(username);
         Boolean passNotSupplied = "".equals(password);
         PrintWriter out = response.getWriter();
@@ -70,13 +70,18 @@ public class Login extends HttpServlet {
                 ResultSet result = stat.executeQuery("SELECT * FROM `user` WHERE `username` = \"" + username + "\";");
                 if (result.next()) { // if already a login
                     int userType = result.getInt("type");
+                    String id = result.getString("user_id");
                     HttpSession session = request.getSession(); // creates a session.
                     session.setAttribute("type", userType); 
                     session.setAttribute("username", username); 
+                    session.setAttribute("id", id); 
                     response.sendRedirect("MembersArea"); // goes to members area to check type.
                 } else { // if it is not already a login
                     out.println("Sorry this username is not in our database.");
                 }
+                conn.close();
+                stat.close();
+                result.close();
             } catch (SQLException e) {
 
             }

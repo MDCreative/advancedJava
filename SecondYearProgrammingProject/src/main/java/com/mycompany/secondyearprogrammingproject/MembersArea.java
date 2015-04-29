@@ -18,7 +18,6 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
-import static javax.servlet.SessionTrackingMode.URL;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +28,13 @@ import javax.servlet.http.HttpSession;
  * @author jason_000
  */
 public class MembersArea extends HttpServlet {
+    private DocTemplate dt;
+    private HttpSession session;
+    public MembersArea(){
+        super();
+        URL file = this.getClass().getResource("/header.html");
+        dt = new DocTemplate(file);
+    }
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,12 +47,12 @@ public class MembersArea extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            URL file = this.getClass().getResource("/header.html");
-            DocTemplate dt = new DocTemplate(file);
             
-            HttpSession session = request.getSession(); // get a session.
+            
+            session = request.getSession(); // get a session.
             
             int type = (int) session.getAttribute("type");
             if(type == 0){ // Student
@@ -57,23 +63,45 @@ public class MembersArea extends HttpServlet {
                 dt.replacePlaceholder("TITLE", "Instructor Lobby");
                 dt.replacePlaceholder("CONTENT", "Content Here");
             }else if(type == 2 || type == 3){ // administrator
-                dt.replacePlaceholder("TITLE", "Administrator Lobby");
-                URL regStr = this.getClass().getResource("/register.html");
-                String admin = DocTemplate.getHTMLString(regStr);
-                admin += "<table>"+getMembers()+"</table>";
-                dt.replacePlaceholder("CONTENT", admin);
+                dt.replacePlaceholder("CONTENT", buildAdminDocument());
             }
             System.out.println(dt.getTheDoc());
             out.print(dt.getTheDoc());  
             
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    private String getMembers(){
+    private String buildAdminDocument(){
+        dt.replacePlaceholder("TITLE", "Administrator Lobby");
+        URL regStr = this.getClass().getResource("/register.html");
+
+        String admin = "<div class=\"ui tabular menu\">\n" +
+            "  <div class=\"item\" data-tab=\"register\">Register Users</div>\n" +
+            "  <div class=\"item\" data-tab=\"users\">Users</div>\n" +
+            "</div>";
+        admin += "<div class=\"ui tab\" data-tab=\"register\">";        
+        try {
+            admin += DocTemplate.getHTMLString(regStr);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        admin += "</div>";
+        admin += "<div class=\"ui tab\" data-tab=\"users\">";
+        admin += "<table class='ui table segment'>";
+        admin += "<thead><th></th><th>Username</th><th>Type</th>"+
+                "<th>Email</th></thead>";
+        admin += getMembers((String)session.getAttribute("id"))+"</table>";
+        admin += "</div>";
+        admin += "<script type=\"text/javascript\">$('.tabular.menu .item').tab();</script>";
+        return admin;
+    }
+    
+    private String getMembers(String id){
+        System.out.println("********** HERE **********");
         try {
             SimpleDataSource.init("/database.properties");
         } catch (IOException ex) {
@@ -81,23 +109,52 @@ public class MembersArea extends HttpServlet {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Connection conn;
+        Connection conn = null;
+        Statement stat = null;
+        ResultSet result = null;
+        String rows = "";
         try {
+            try{
             conn = SimpleDataSource.getConnection();
-            Statement stat = conn.createStatement();
-            ResultSet result = stat.executeQuery("SELECT * FROM `user`;");
-            String rows = "";
+            stat = conn.createStatement();
+            result = stat.executeQuery("SELECT SQL_NO_CACHE * FROM `user`;");
             while(result.next()){ // if not already a login
                 String name = result.getString("username");
                 String type = result.getString("type");
                 String email = result.getString("email");
-                String row = "<tr><td>"+name+"</td><td>"+type+"</td><td>"+email+"</td></tr>";
+                String user_id = result.getString("user_id");
+                String classer = (user_id.equals(id))? " class=\"active\"" : "";
+                String row = "<tr"+classer+"><td>"
+                        + "<a href=\"EditUser?id="+user_id+"\"><i class=\"write icon\"></i></a>"
+                        + "<a href=\"UserTestHistory?id="+user_id+"\"><i class=\"student icon\"></i></td></a>"
+                        + "<td>" + name +"</td>";
+                String typeStr = "";
+                switch(Integer.parseInt(type)){
+                    case 2:
+                        typeStr = "Administrator";
+                        break;
+                    case 1:
+                        typeStr = "Instructor";
+                        break;
+                    default:
+                        typeStr = "User";
+                }
+                row += "<td>"+typeStr+"</td>";
+                row += "<td>"+email+"</td></tr>";
                 rows += row;
             }
-            conn.close();
+            System.out.println("********** HERE2 **********");
+            } finally {
+                if(result != null)result.close();
+                if(stat != null)stat.close();
+                if(conn != null)conn.close();
+            }
             return rows;
         } catch (SQLException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        } finally{
+            
+            
         }
         return null;
     }

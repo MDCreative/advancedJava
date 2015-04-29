@@ -34,7 +34,6 @@ public class DocTemplate {
     public DocTemplate(URL source){
         try {
             theDoc = getHtmlStr(source);
-            System.out.println(theDoc);
         } catch (URISyntaxException ex) {
             Logger.getLogger(DocTemplate.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -71,6 +70,8 @@ public class DocTemplate {
             html+= line;
             line = br.readLine();
         }   
+        file.close();
+        br.close();
         return html;
     }
     
@@ -84,6 +85,10 @@ public class DocTemplate {
             html+= line;
             line = br.readLine();
         }   
+        file.close();
+        br.close();
         return html;
+        
+        
     }
 }
