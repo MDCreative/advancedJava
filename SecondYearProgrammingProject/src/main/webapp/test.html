@@ -20,9 +20,107 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.13.0/javascript/semantic.min.js"></script>
   <script type="text/javascript">
-    $(document).ready(function(){
-      $('.ui.dropdown').dropdown();
+    var questions;
+    var currentQuestion = 0;
+    var questionScores = [];
+	
+    $(window).load(function()
+    {
+        $('.ui.dropdown').dropdown({ transition: 'fade up' });
     });
+    
+    $(document).ready(function()
+    {
+      $("#mainContent").hide();
+      
+      $.ajax("Quiz").done(function(data)
+      {
+        questions = data;
+        console.dir(questions);
+        $(".ui.active.inverted.dimmer").removeClass("active");
+        $("#loaderRow").hide();
+        //$("#mainContent").show();
+        updateQuestion();
+      });
+      
+      $(".nextButton").click(function()
+      {
+          if(questions[currentQuestion].type < 2)
+          {
+              if($("#answer-input").prop("value").match(/\S/g) == null)
+              {
+                  $("#answer-input").parent().addClass("error");
+                  $("#answer-input").prop("placeholder", "Please enter a valid answer.");  
+                  return;
+              }
+              
+              if(questions[currentQuestion].answer.toLowerCase() == $("#answer-input").prop("value").toLowerCase())
+                  questionScores.push(1);
+                 
+              else
+                  questionScores.push(0);
+          }
+          else
+          {
+              if($(".ui.dropdown").dropdown("get text").toLowerCase() == questions[currentQuestion].answer.toLowerCase())
+                  questionScores.push(1);
+              
+              else
+                  questionScores.push(0);
+                  
+          }
+          
+          console.log(questionScores);
+          
+          currentQuestion++;
+          
+          if(currentQuestion != questions.length)
+            updateQuestion();
+        
+          else
+          {
+              
+          }
+      })
+      
+      $("#answer-input").on('focus', function()
+      {
+          $("#answer-input").parent().removeClass("error");
+          $("#answer-input").prop("placeholder", "Answer...");  
+      });
+      
+    });
+    
+    function updateQuestion()
+    {
+        var question = questions[currentQuestion];
+        
+        var titleCaseWord = question.word.toUpperCase()[0] + question.word.toLowerCase().slice(1);
+        $(".curQuestion > h1").text(titleCaseWord);
+        
+        if(question.type == 2)
+        {            
+            $(".translation-question-inputs").hide();
+            $(".gender-question-inputs").show();
+        }
+        else
+        {
+            $(".translation-question-inputs > p").text(["What is this in English?", "What is this in German?"][question.type]);
+            $(".translation-question-inputs").show();
+            $(".gender-question-inputs").hide();
+        }
+        
+        $("#answer-input").prop("value", "");   
+        
+        var activeStep = $('.ui.ordered.steps').find(".active.step");
+                                
+        if(currentQuestion > 0)
+        {
+            activeStep.next(".step").addClass("active");
+            $('.active.step:first').removeClass("active");
+        }
+        //children[currentQuestion].addClass("active");
+    }
   </script>
 </head>
 <body class="home">
@@ -35,14 +133,42 @@
     <a href="" class="item">Take Test</a>
     <a href="" class="item">Test History</a>
   </nav> <!-- end nav -->
+ 
+  <main class="ui page grid">	  
+    <div class="row" id="loaderRow">
+            <div class="ui segment">
+                    <div class="ui active inverted dimmer">
+                            <div class="ui large indeterminate loader"></div>
+                    </div>
+                <p></p>
+            </div>
+    </div>
+	
+    <div class="row" id="results">
+        <div class="center aligned starter column">
+            <div class="ui header">
+                <h1>Quiz results</h1>
+            </div>
+            <div class="ui attached fluid segment">
+                <p>You scored a possible <span class="result-text">20 out of 20</span> points. Your results for each question are as follows:</p>
+                <div class="ui attached positive message">
+                    <h2 class="ui header">
+                        Question #1
+                        <i class="checkmark icon"></i>
+                    </h2>
+                    <p>Your answer was <b>"blah"</b> and the correct answer was <b>"eggs"</b>.</p>
+                </div>
 
-  <main class="ui page grid">
-    <div class="row">
+            </div>
+        </div>
+    </div>
+      
+    <div class="row" id="mainContent">
       <div class="center aligned starter column">
         <h1 class="ui header">The Test</h1>
         <p>Take the test</p>
 
-        <div class="ui ordered steps">
+        <div class="ui small ordered steps">
           <div class="active step">
             <div class="content">
               <div class="title">1</div>
@@ -93,39 +219,95 @@
               <div class="title">10</div>
             </div>
           </div>
+            <div class="step">
+            <div class="content">
+              <div class="title">11</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">12</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">13</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">14</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">15</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">16</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">17</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">18</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">19</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="content">
+              <div class="title">20</div>
+            </div>
+          </div>
         </div>
+		
         <form class="ui form nobord">
-
-          
           <div class="ui attached fluid segment question curQuestion">
             <h1>Aufzug</h1>
-            <p>What is this word in English?</p>
-            <input type="text" name="answer1a" value="" />
-            <p>What is it's gender</p>
+            <div class="translation-question-inputs">
+                <p>What is this in English?</p>
+                
+                <div class="ui massive icon input">
+                    <input type="text" name="answer1a" value="" placeholder="Answer..." id="answer-input" />
+                    <i class="arrow circle right icon"></i>
+                </div>
+            </div>
+            
+            <div class="gender-question-inputs">
+                <p>What gender is this word?</p>
 
-            <select class="ui search selection dropdown" name="answer1b" id="category">
-              <option value="1">None</option>
-              <option value="2">Masculine</option>
-              <option value="3">Feminine</option>
-              <option value="4">Neuter</option>
-              <option value="5">M/F</option>
-              <option value="6">Plural</option>
-
-            </select>
-            <br />
-            <div class="ui button">
+                
+                <div class="ui selection dropdown" id="category">
+                    <input type="hidden" name="gender">
+                    <div class="default text">Gender</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <div class="item" data-value="1">None</div>
+                        <div class="item" data-value="2">Masculine</div>
+                        <div class="item" data-value="3">Feminine</div>
+                        <div class="item" data-value="4">Neuter</div>
+                        <div class="item" data-value="5">M/F</div>
+                        <div class="item" data-value="6">Plural</div>
+                    </div>
+                </div>
+            </div>
+            
+                <br />
+            <div class="ui button nextButton">
               Next
             </div>
           </div>
-
-
-          
-
-
         </form>
-
-
-
       </div>
     </div>
   </main>

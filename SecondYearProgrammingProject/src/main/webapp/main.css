@@ -4,6 +4,19 @@ body {
     font-family: "Open Sans", serif;
 }
 
+#loaderRow 
+{
+    margin-top:35px;
+    height:250px;
+}
+
+#loaderRow .ui.segment
+{
+    height:100%;
+}
+
+.result-text { font-weight: bold; }
+
 .ui.menu .item {
     font-weight: 300;
     font-size: 0.9rem;
