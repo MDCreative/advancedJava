@@ -132,7 +132,7 @@
             $(".gender-question-inputs").hide();
         }
         
-        //$("#answer-input").prop("value", "");   
+        $("#answer-input").prop("value", "");   
         
         var activeStep = $('.ui.ordered.steps').find(".active.step");
                                 
@@ -208,7 +208,7 @@
             }).done(function()
             {
                 $(".finishButton").removeClass("loading");
-                window.location.href = "/SecondYearProgrammingProject/index.html";
+                window.location.href = "../SecondYearProgrammingProject/TestHistoryServlet";
             })
         });
     }

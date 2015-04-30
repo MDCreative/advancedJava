@@ -1,0 +1,107 @@
+<!doctype html>
+<html class="no-js">
+<head>
+  <meta charset="utf-8">
+  <title>Deutsche Akademie</title>
+  <meta name="description" content="">
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- build:css styles/vendor.css -->
+  <!-- bower:css -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.13.0/css/semantic.min.css">
+  <!-- endbower -->
+  <!-- endbuild -->
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:400,700,300&subset=latin,vietnamese' rel='stylesheet' type='text/css'>
+
+  <!-- build:css styles/main.css -->
+  <link rel="stylesheet" href="main.css">
+  <!-- endbuild -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.13.0/javascript/semantic.min.js"></script>
+  <script>
+    
+    $(window).load(function()
+    {
+        updateResults();
+    });
+    
+    var questions = JSON.parse('{{questionData}}');
+    
+    var questionScores = [];
+    var questionAttempts = [];
+
+    for(var question in questions)
+    {
+        questionScores.push(+questions[question].correct);
+        questionAttempts.push(questions[question].attempt);
+    }
+    
+    function updateResults()
+    {
+        var score = questionScores.reduce(function(a, b) { return a + b; });
+        
+        $(".result-text").text(score + " out of " + questions.length + " (" + Math.round(score / questions.length * 100.0) + "%)");
+        
+        var builtString = "";
+        
+        for(var i = 0; i < questions.length; i++)
+        {
+            var icon = "checkmark icon", feedback = "positive";
+            
+            if(questions[i].answer.toLowerCase() !== questionAttempts[i].toLowerCase())
+                icon = "remove icon", feedback = "negative";
+            
+            builtString += 
+                '<div class="ui attached ' + feedback + ' message">' +
+                    '<h2 class="ui header">' +
+                        'Question #' + (i + 1) +
+                        '<i class="' + icon + '"></i>' +
+                    '</h2>' +
+                    '<p>Your answer was <b>"' + questionAttempts[i] + '"</b> and the correct answer was <b>"' + questions[i].answer + '"</b>.</p>' +
+                '</div>';
+        }
+        
+        $("#results .ui.attached.segment").append(builtString);
+        
+        $("#results .ui.attached.segment").append(
+          '<div class="ui button finishButton">' +
+                  'Finish' +
+                '</div>'      
+        );
+
+        $(".finishButton").css("margin-top", "25px");
+        
+        $(".finishButton").on('click', function()
+        {            
+            window.location.href = "../SecondYearProgrammingProject/TestHistoryServlet";
+        });
+    }
+  </script>
+</head>
+<body class="home">
+
+  <nav class="ui fixed menu inverted navbar">
+    <a href="" class="brand item">Deutsche Akademie</a>
+    <a href="" class="item">Home</a>
+    <a href="" class="item">Edit Word</a>
+    <a href="" class="item">List Words</a>
+    <a href="" class="active item">Take Test</a>
+    <a href="" class="item">Test History</a>
+  </nav> <!-- end nav -->
+ 
+  <main class="ui page grid">	  
+    <div class="row" id="results">
+        <div class="center aligned starter column">
+            <div class="ui header">
+                <h1>Quiz results</h1>
+            </div>
+            <div class="ui attached fluid segment">
+                {{resultsData}}
+            </div>
+        </div>
+    </div>
+  </main>
+
+</body>
+</html>

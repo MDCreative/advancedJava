@@ -15,16 +15,24 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * The quiz servlet, which generates randomly distributed distinct questions.
+ * The quiz servlet, which generates randomly distributed distinct questions and updates questions.
  * 
  * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
 */
 public class Quiz extends HttpServlet
 {    
+    private final int SPECIAL_USER_INVALID = -1;
+    
+    //Pseudo random number generator for generating question types
     private Random rand;
     
+    /**
+     * Constructs a quiz servlet.
+     */
     public Quiz()
     {
+        //Initialize the random number generator.
         rand = new Random();
         
         if(SimpleDataSource.isInitialized())
@@ -42,10 +50,17 @@ public class Quiz extends HttpServlet
         }
     }
     
+    /**
+     * Joins together an array with commas.
+     * 
+     * @param array The array.
+     * @return A string representation of the array, joined with commas.
+     */
     private String join(String[] array)
     {
         String returnValue = "";
         
+        //If i is not the last value, add commas - otherwise dont
         for(int i = 0; i < array.length; i++)
             returnValue += array[i] + ((i < array.length - 1) ? (", ") : (""));
         
@@ -89,39 +104,51 @@ public class Quiz extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
     {
+        //Grab question data, incorrect question string and correct question string.
         String quizData = request.getParameter("data");
         String incorrectQuestions = request.getParameter("incorrectQuestions");
         String correctQuestions = request.getParameter("correctQuestions");
         
+        //Grab the score of the question to set.
         int score = Integer.parseInt(request.getParameter("score"));
             
+        //Grab the session associated with this user.
         HttpSession session = request.getSession();
         
-        int id = 123;
+        //Set up attempt id
+        int id = SPECIAL_USER_INVALID;
 
         if(session != null)
         {
-            String strid = (String)session.getAttribute("id");
+            //If there is a session, try grab their user id.
+            String strId = (String)session.getAttribute("id");
             
-            if(strid != null)
-                id = Integer.parseInt(strid);
+            //If their user id is not null, try and parse it
+            if(strId != null)
+                id = Integer.parseInt(strId);
         }
         
+        //Set up connection and statement objects
         Connection connection = null;
         PreparedStatement statement = null;
         
+        //If their user id is not specified, return
+        if(id == SPECIAL_USER_INVALID)
+            return;
+            
         try
         {
+            //Grab a connection to the database and prepare the insert statement
             connection = SimpleDataSource.getConnection();
-            
             statement = connection.prepareStatement("INSERT INTO `test_history` (`user_id`, `score`, `data`) VALUES (?, ?, ?);");
             
+            //Bind parameters and execute the query
             statement.setInt(1, id);
             statement.setInt(2, score);
             statement.setString(3, quizData);
-            
             statement.executeUpdate();       
             
+            //Finally after the insert, update which questions were correct/incorrect.
             updateCorrectQuestions(correctQuestions, incorrectQuestions);
         }
         catch(SQLException e)
@@ -193,9 +220,12 @@ public class Quiz extends HttpServlet
      */
     private Question[] generateQuestions(int amount) throws SQLException
     {        
+        //Set up database vars
         Connection connection = null;
         Statement statement = null;
         ResultSet rs = null;
+        
+        //Return values for generating questions
         Question[] returnValues = new Question[amount];
         
         try
