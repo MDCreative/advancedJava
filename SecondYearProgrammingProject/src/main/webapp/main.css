@@ -47,3 +47,23 @@ body {
 #errorReg:target{
 	display:block;
 }
+.fadeOut{
+    position:absolute !important;
+    right:10px;
+    top:10px;
+    min-width:300px;
+}
+#failed{
+    display:none;
+}
+#failed:target{
+    display:block;
+}
+.tableHead{
+    background:transparent;
+    border:0;
+    color:#000;
+}
+.tableHead:focus{
+    background:white;
+}

@@ -1,0 +1,21 @@
+<form class="ui form eight wide column" action="EditWord" method="POST">
+    <h2>Edit Word</h2>
+    <p class="field"><label>English</label><input type="text" name="english" value="{{ENGLISH}}"></p>
+    <p class="field"><label>German</label><input type="text" name="german" value="{{GERMAN}}"></p>
+    <p class="field"><label>Category</label>
+        <select name="category">
+            {{CATEGORIES}}
+        </select>
+    </p>
+    <p class="field"><label>Gender</label>
+        <select name="gender">
+            {{GENDERS}}
+        </select>
+    </p>
+    <input type="hidden" name="id" value="{{ID}}" />
+    <div class="ui buttons">
+      <input type="reset" class="ui button" value="Reset">
+      <div class="or"></div>
+      <input type="submit" class="ui button green" value="Edit">
+    </div>
+</form>

@@ -67,7 +67,9 @@ public class Login extends HttpServlet {
             try {
                 conn = SimpleDataSource.getConnection();
                 Statement stat = conn.createStatement();
-                ResultSet result = stat.executeQuery("SELECT * FROM `user` WHERE `username` = \"" + username + "\";");
+                ResultSet result = stat.executeQuery("SELECT * FROM `user` "
+                        + "WHERE `username` = \"" + username + "\""
+                        + "AND `password` =\""+ password +"\";");
                 if (result.next()) { // if already a login
                     int userType = result.getInt("type");
                     String id = result.getString("user_id");
@@ -77,7 +79,7 @@ public class Login extends HttpServlet {
                     session.setAttribute("id", id); 
                     response.sendRedirect("MembersArea"); // goes to members area to check type.
                 } else { // if it is not already a login
-                    out.println("Sorry this username is not in our database.");
+                    response.sendRedirect("index.html#failed");
                 }
                 conn.close();
                 stat.close();

@@ -99,7 +99,7 @@ public class Register extends HttpServlet {
                     stat.executeUpdate("INSERT INTO `user` (username, email, password, type) "
                             + "VALUES (\""+ username + "\",\""+ email + "\",\"" + password 
                             + "\"," + usertype + ");");
-                    response.sendRedirect("MembersArea#/users");
+                    response.sendRedirect("MembersArea#/users?success=1");
                 }
                 
                 

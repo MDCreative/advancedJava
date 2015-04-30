@@ -48,7 +48,7 @@ public class MembersArea extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+        boolean success = request.getParameter("success") != null;
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             
@@ -64,7 +64,12 @@ public class MembersArea extends HttpServlet {
                 dt.replacePlaceholder("TITLE", "Instructor Lobby");
                 dt.replacePlaceholder("CONTENT", "Content Here");
             }else if(type == 2 || type == 3){ // administrator
-                dt.replacePlaceholder("CONTENT", buildAdminDocument());
+                String div = "";
+                if(success)
+                    div = "<div class =\"ui positive message fadeOut\">"
+                        + "     <p>User added succesfully</p>"
+                        + "</div>";
+                dt.replacePlaceholder("CONTENT", div + buildAdminDocument());
             }
             out.print(dt.getTheDoc());  
             
@@ -76,11 +81,13 @@ public class MembersArea extends HttpServlet {
     private String buildAdminDocument(){
         dt.replacePlaceholder("TITLE", "Administrator Lobby");
         URL regStr = this.getClass().getResource("/register.html");
-
-        String admin = "<div class=\"ui tabular menu\">\n" +
-            "  <div class=\"item\" data-tab=\"register\">Register Users</div>\n" +
-            "  <div class=\"item\" data-tab=\"users\">Users</div>\n" +
-            "</div>";
+        
+        String admin = ""
+                + "<div class=\"ui tabular menu\">\n"
+                + "     <div class=\"item\" data-tab=\"register\">Register Users</div>\n"
+                + "     <div class=\"item\" data-tab=\"users\">Users</div>\n"
+                + "     <div class=\"item\" data-tab=\"words\">Words</div>\n"
+                + "</div>";
         admin += "<div class=\"ui tab\" data-tab=\"register\">";        
         try {
             admin += DocTemplate.getHTMLString(regStr);
@@ -95,6 +102,9 @@ public class MembersArea extends HttpServlet {
         admin += "<thead><th></th><th>Username</th><th>Type</th>"+
                 "<th>Email</th></thead>";
         admin += getMembers((String)session.getAttribute("id"))+"</table>";
+        admin += "</div>";
+        admin += "<div class=\"ui tab\" data-tab=\"words\">";
+        admin += getWords();
         admin += "</div>";
         admin += "<script type=\"text/javascript\">$('.tabular.menu .item').tab();</script>";
         return admin;
@@ -126,7 +136,7 @@ public class MembersArea extends HttpServlet {
                 String classer = (user_id.equals(id))? " class=\"active\"" : "";
                 String row = "<tr"+classer+"><td>"
                         + "<a href=\"EditUser?id="+user_id+"\"><i class=\"write icon\"></i></a>"
-                        + "<a href=\"UserTestHistory?id="+user_id+"\"><i class=\"student icon\"></i></td></a>"
+                        + "<a href=\"TestHistoryServlet?id="+user_id+"\"><i class=\"student icon\"></i></a></td>"
                         + "<td>" + name +"</td>";
                 String typeStr = "";
                 switch(Integer.parseInt(type)){
@@ -155,6 +165,88 @@ public class MembersArea extends HttpServlet {
         } finally{
             
             
+        }
+        return null;
+    }
+    
+    private String getWords(){
+        String words = null;
+        Connection conn = null;
+        Statement stat = null;
+        ResultSet result = null;
+        String rows = "";
+        try {
+            
+            SimpleDataSource.init("/database.properties");
+            
+            conn = SimpleDataSource.getConnection();
+            String[] genders = GenderIdentifier.getGenders(conn);
+            String query = "SELECT * FROM `word`";
+            String catQuery = "SELECT `name` FROM `category`";
+            stat = conn.createStatement();
+            result = stat.executeQuery(catQuery);
+            int size = 0;
+            int i = 0;
+            result.last();
+            size = result.getRow();
+            result.beforeFirst();
+            String[] catNames = new String[size];
+            while(result.next()){
+                catNames[i] = result.getString("name");
+                i++;
+            }
+            result = stat.executeQuery(query);
+            
+            while(result.next()){
+                String row = "";
+                row += "<tr>\n"
+                        + "<td>\n\t"
+                        + "     <a href=\"EditWord?id=" + result.getInt("id") + "\">\n\t\t"
+                        + "         <i class=\"ui icon write\"></i>\n\t"
+                        + "     </a>\n"
+                        + "</td>\n"
+                        + "<td>" + result.getString("word") + "</td>"
+                        + "<td>" + result.getString("translation") + "</td>"
+                        + "<td>" + catNames[result.getInt("category") - 1] + "</td>"
+                        + "<td>" + genders[result.getInt("gender")] + "</td>"
+                    +  "</tr>";
+                rows += row;
+            }
+            words = rows;
+            conn.close();
+            result.close();
+            String tableHead = ""
+                    + "<table class=\"ui table segment display\" id=\"wordsTable\">"
+                    + "     <thead>"
+                    + "         <tr>"
+                    + "             <th></th>"
+                    + "             <th class=\"searchMe\">German Word</th>"
+                    + "             <th class=\"searchMe\">English Word</th>"
+                    + "             <th class=\"searchMe\">Category</th>"
+                    + "             <th>Gender</th>"
+                    + "         </tr>"
+                    + "     </thead>"
+                    + "     <tfoot>"
+                    + "         <tr>"
+                    + "             <th></th>"
+                    + "             <th>German Word</th>"
+                    + "             <th>English Word</th>"
+                    + "             <th>Category</th>"
+                    + "             <th>Gender</th>"
+                    + "         </tr>"
+                    + "     </tfoot>"
+                    + "     <tbody>";
+            
+            String tableFoot = ""
+                    + "     </tbody>"
+                    + "</table>";
+            return tableHead + words + tableFoot;
+        } catch (IOException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
