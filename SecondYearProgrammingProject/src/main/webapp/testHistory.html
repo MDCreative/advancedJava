@@ -20,6 +20,48 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/0.13.0/javascript/semantic.min.js"></script>
   <script type="text/javascript">
+      /**
+        * Gets the difference in human-readable form from the millisecond supplied to now.
+        * [A modified version of http://stackoverflow.com/questions/8211744/convert-time-interval-given-in-seconds-into-more-human-readable-form]
+        *
+        * @param {number} milliseconds - The time to calculate the difference between, in milliseconds.
+        */
+       function timediff(milliseconds) 
+       {
+           function numberEnding (number) 
+           {
+               //If the number is greater than 1, use 's' (plural), otherwise, none.
+               return (number > 1) ? 's' : '';
+           }
+
+           //Set the milliseconds to the difference between now and the milliseconds
+               milliseconds = new Date().getTime() - milliseconds;
+
+           var temp = Math.floor(milliseconds / 1000);
+           var years = Math.floor(temp / 31536000);
+
+           if (years)
+               return years + ' year' + numberEnding(years) + " ago";
+
+           var days = Math.floor((temp %= 31536000) / 86400);
+           if (days)
+               return days + ' day' + numberEnding(days) + " ago";
+
+           var hours = Math.floor((temp %= 86400) / 3600);
+           if (hours)
+               return hours + ' hour' + numberEnding(hours) + " ago";
+
+           var minutes = Math.floor((temp %= 3600) / 60);
+           if (minutes)
+               return minutes + ' minute' + numberEnding(minutes) + " ago";
+
+           var seconds = temp % 60;
+           if (seconds)
+               return seconds + ' second' + numberEnding(seconds) + " ago";
+
+           return 'just now';
+       }
+
     $(document).ready(function()
     {
         $("#mainContent").hide();
@@ -32,12 +74,12 @@
             for(var row in data)
             {
                 var formattedTime = new Date(data[row].date);
-                formattedTime = formattedTime.toDateString() + ", " + formattedTime.toLocaleTimeString();
+                formattedTime = formattedTime.toDateString() + ", " + formattedTime.toLocaleTimeString() + " <i>(" + timediff(+formattedTime) + ")</i>";
                 
                 $("#mainContent .ui.table").append(
                     '<tr>' +
                         '<td>' + data[row].test_id + '</td>' +
-                        '<td>' + data[row].score   + '</td>' +
+                        '<td>' + data[row].score   + '/20 (' + Math.round(data[row].score / 20 * 100.0) + '%) </td>' +
                         '<td>' + formattedTime     + '</td>' +
                     '</tr>'
                 );
@@ -78,9 +120,9 @@
             <table class="ui three column celled striped table">
                 <thead>
                     <tr>
-                    <th>Quiz ID</th>
-                    <th>Score</th>
-                    <th>Date</th>
+                        <th>Quiz ID <i class="right floated code icon"></i></th>
+                        <th>Score <i class="right floated empty star icon"></i></th>
+                        <th>Date <i class="right floated calendar icon"></i></th>
                     </tr>
                 </thead>
             </table>
