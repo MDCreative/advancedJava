@@ -26,31 +26,42 @@ import static javax.servlet.SessionTrackingMode.URL;
  * @author jacko
  */
 public class DocTemplate {
+
     private String theDoc;
-    public DocTemplate(String source){
-        theDoc = getHtmlStr(source);
+    private String original;
+
+    public DocTemplate(String source) {
+        original = getHtmlStr(source);
     }
-    
-    public DocTemplate(URL source){
+
+    public DocTemplate(URL source) {
         try {
-            theDoc = getHtmlStr(source);
-            System.out.println(theDoc);
+            original = getHtmlStr(source);
         } catch (URISyntaxException ex) {
             Logger.getLogger(DocTemplate.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(DocTemplate.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void replacePlaceholder(String placeholder, String html){
-        theDoc = theDoc.replace("{{" + placeholder + "}}", html);
-    } 
-    
-    public String getTheDoc(){
-        return theDoc;
+
+    public void prepareNewDoc() {
+        theDoc = new String(original);
     }
-    
-    private String getHtmlStr(String file){
+
+    public void replacePlaceholder(String placeholder, String html) {
+        if (theDoc == null) {
+            throw new IllegalStateException("Must call prepareNewDoc(), prior to setting placeholder values.");
+        }
+        theDoc = theDoc.replace("{{" + placeholder + "}}", html);
+    }
+
+    public String getTheDoc() {
+        String response = new String(theDoc);
+        theDoc = null;
+        return response;
+    }
+
+    private String getHtmlStr(String file) {
         try {
             byte[] encoded;
             encoded = Files.readAllBytes(Paths.get(file));
@@ -61,29 +72,35 @@ public class DocTemplate {
         }
         return null;
     }
-    private String getHtmlStr(URL is) throws URISyntaxException, FileNotFoundException, IOException{
+
+    private String getHtmlStr(URL is) throws URISyntaxException, FileNotFoundException, IOException {
         URI in = is.toURI();
         String html = "";
         FileReader file = new FileReader(in.getPath());
         BufferedReader br = new BufferedReader(file);
         String line = br.readLine();
-        while(line != null){
-            html+= line;
+        while (line != null) {
+            html += line;
             line = br.readLine();
-        }   
+        }
+        file.close();
+        br.close();
         return html;
     }
-    
-    public static String getHTMLString(URL is) throws URISyntaxException, FileNotFoundException, IOException{
+
+    public static String getHTMLString(URL is) throws URISyntaxException, FileNotFoundException, IOException {
         URI in = is.toURI();
         String html = "";
         FileReader file = new FileReader(in.getPath());
         BufferedReader br = new BufferedReader(file);
         String line = br.readLine();
-        while(line != null){
-            html+= line;
+        while (line != null) {
+            html += line;
             line = br.readLine();
-        }   
+        }
+        file.close();
+        br.close();
         return html;
+
     }
 }

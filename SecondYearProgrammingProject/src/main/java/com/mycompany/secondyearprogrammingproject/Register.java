@@ -44,6 +44,7 @@ public class Register extends HttpServlet {
         String password = request.getParameter("password");
         String passConf = request.getParameter("passwordconf");
         String email = request.getParameter("email");
+        String usertype = request.getParameter("type");
         
         Boolean nameNotSupplied = "".equals(username);
         Boolean passNotSupplied = "".equals(password);
@@ -81,18 +82,31 @@ public class Register extends HttpServlet {
                 Statement stat = conn.createStatement();
                 
                 // look up user
-                ResultSet result = stat.executeQuery("SELECT * FROM `user` WHERE `username` = \"" + username + "\";");
-                if(!result.next()){ // if not already a login
-                     stat.executeUpdate("INSERT INTO `user` (username, email, password, type) VALUES (\""+ username + "\",\""+ email + "\",\"" + password + "\"," + "0" + ");");
-                }else{ // if it is already a login
-                    out.println("Sorry this username is take please go backa an re-enter a different username.");
+                ResultSet resultUsername = stat.executeQuery("SELECT * FROM `user` WHERE "
+                        + "`username` = \"" + username + "\";");
+                Boolean un = resultUsername.next();
+                ResultSet resultEmail = stat.executeQuery("SELECT * FROM `user` WHERE "
+                        + "`email` = \"" + email + "\";");
+                Boolean em = resultEmail.next();
+                Boolean both = un && em;
+                if(both)
+                    out.println("Sorry this username and email is taken please go back and re-enter a different username.");
+                else if(un)
+                    out.println("Sorry this username is taken please go back and re-enter a different username.");
+                else if(em)
+                    out.println("Sorry this email is taken please go back and re-enter a different username.");
+                else{
+                    stat.executeUpdate("INSERT INTO `user` (username, email, password, type) "
+                            + "VALUES (\""+ username + "\",\""+ email + "\",\"" + password 
+                            + "\"," + usertype + ");");
+                    response.sendRedirect("MembersArea#/users");
                 }
+                
                 
             } catch (SQLException ex) {
                 Logger.getLogger(Register.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 try {
-                    response.sendRedirect("MembersArea#regd");
                     conn.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(Register.class.getName()).log(Level.SEVERE, null, ex);
