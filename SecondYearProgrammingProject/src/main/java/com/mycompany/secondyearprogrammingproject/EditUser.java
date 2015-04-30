@@ -49,6 +49,7 @@ public class EditUser extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
+        boolean success = request.getParameter("success") != null;
         try (PrintWriter out = response.getWriter()) {
             
             String id = request.getParameter("id");
@@ -78,8 +79,12 @@ public class EditUser extends HttpServlet {
                     dt.replacePlaceholder("TITLE", "Edit User");
                     URL edit = this.getClass().getResource("/edit.html");
                     try {
-                        
-                        dt.replacePlaceholder("CONTENT", DocTemplate.getHTMLString(edit));
+                        String div = "";
+                        if(success)
+                            div = "<div class =\"ui positive message fadeOut\">"
+                                + "     <p>User edited succesfully</p>"
+                                + "</div>";
+                        dt.replacePlaceholder("CONTENT", div + DocTemplate.getHTMLString(edit));
                         dt.replacePlaceholder("USERNAME", user.getString("username"));
                         dt.replacePlaceholder("EMAIL", user.getString("email"));
                         dt.replacePlaceholder("ID", id);
@@ -154,7 +159,7 @@ public class EditUser extends HttpServlet {
             stat.setInt(4, Integer.parseInt(id));
             int changed = stat.executeUpdate();
             if(changed != 0)
-                response.sendRedirect("EditUser?id="+id);
+                response.sendRedirect("EditUser?id="+id+"&success=1");
             else
                 out.println("Oops, something went wrong please try again");
         }
