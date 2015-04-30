@@ -21,6 +21,10 @@
         <servlet-class>com.mycompany.secondyearprogrammingproject.MembersArea</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>EditUser</servlet-name>
+        <servlet-class>com.mycompany.secondyearprogrammingproject.EditUser</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>MemberEdit</servlet-name>
         <servlet-class>MemberEdit</servlet-class>
     </servlet>
@@ -63,6 +67,10 @@
     <servlet-mapping>
         <servlet-name>TestHistoryServlet</servlet-name>
         <url-pattern>/TestHistoryServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditUser</servlet-name>
+        <url-pattern>/EditUser</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

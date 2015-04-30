@@ -72,7 +72,7 @@ public class TestHistoryServlet extends HttpServlet
         response.setContentType("text/html");
         
         DocTemplate template = new DocTemplate(this.getClass().getResource("/testHistory.html"));
-        
+        template.prepareNewDoc();
         String formattedRows = "";
         
         for(String row : getTestHistoryForUser(id))
@@ -112,9 +112,9 @@ public class TestHistoryServlet extends HttpServlet
                     "<tr>" +
                         "<td>" + test_id + "</td>" +
                         "<td>" + score   + "/20 (" + Math.round(score / 20.0 * 100.0) + "%) </td>" +
-                        "<td>" + date.toLocalDateTime().toLocalDate() + ", " +
-                                 date.toLocalDateTime().toLocalTime() + "</td>" +
+                        "<td>" + date.toString() + "</td>" +
                     "</tr>"
+                        
                 );
             }
         }
