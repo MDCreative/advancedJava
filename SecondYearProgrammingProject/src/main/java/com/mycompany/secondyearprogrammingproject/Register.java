@@ -97,7 +97,7 @@ public class Register extends HttpServlet {
                     out.println("Sorry this email is taken please go back and re-enter a different username.");
                 else{
                     stat.executeUpdate("INSERT INTO `user` (username, email, password, type) "
-                            + "VALUES (\""+ username + "\",\""+ email + "\",\"" + password 
+                            + "VALUES (\""+ username + "\",\""+ email + "\",\"" + Security.getHash(password) 
                             + "\"," + usertype + ");");
                     response.sendRedirect("MembersArea#/users?success=1");
                 }

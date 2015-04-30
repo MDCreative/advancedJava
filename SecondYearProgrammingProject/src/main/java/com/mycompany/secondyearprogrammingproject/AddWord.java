@@ -28,10 +28,10 @@ import javax.servlet.http.HttpSession;
  *
  * @author jason_000
  */
-public class EditWord extends HttpServlet {
+public class AddWord extends HttpServlet {
     private DocTemplate dt;
     private HttpSession session;
-    public EditWord(){
+    public AddWord(){
         super();
         URL file = this.getClass().getResource("/header.html");
         dt = new DocTemplate(file);
@@ -50,76 +50,58 @@ public class EditWord extends HttpServlet {
             throws ServletException, IOException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
         boolean success = request.getParameter("success") != null;
-        int sucNum = -1;
-        if(success)
-            sucNum = Integer.parseInt(request.getParameter("success"));
         try (PrintWriter out = response.getWriter()) {
             
-            String id = request.getParameter("id");
             
             session = request.getSession(); // get a session.
             
             dt.prepareNewDoc();
             int type = (int) session.getAttribute("type");
             
-            if(id == null){
-                out.println("You must supply an id");
-                return;
-            }
-            if(type != 2)
-                out.println("You do not have sufficient privilges to do this");
-            else{
+            
+            
+            if(type == 1 || type == 2){
                 Connection conn = null;
+                try {
+                    SimpleDataSource.init("/database.properties");
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(AddWord.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 conn = SimpleDataSource.getConnection();
-                Statement stat = conn.createStatement();
-                String query = "SELECT * FROM `word`"
-                        + "WHERE `id` = " + id + ";";
-                        
-                ResultSet word = stat.executeQuery(query);
                 
-                if(!word.next())
-                    out.println("Word not found");
-                else{
-                    dt.replacePlaceholder("TITLE", "Edit Word (" + word.getString("word") + ")");
+                    dt.replacePlaceholder("TITLE", "Add Word");
                     
                     URL edit = this.getClass().getResource("/editWord.html");
                     try {
                         String div = "";
-                        String actionWord = (sucNum == 1)? "edited": "added";
                         if(success)
                             div = "<div class =\"ui positive message fadeOut\">"
-                                + "     <p>"
-                                    + "Word "
-                                    + actionWord
-                                    + " succesfully"
-                                    + "</p>"
+                                + "     <p>Word edited succesfully</p>"
                                 + "</div>";
                         
                         dt.replacePlaceholder("CONTENT", div + DocTemplate.getHTMLString(edit));
-                        dt.replacePlaceholder("ACTION", "EditWord");
-                        dt.replacePlaceholder("ENGLISH", word.getString("translation"));
-                        dt.replacePlaceholder("GERMAN", word.getString("word"));
-                        dt.replacePlaceholder("ID", id);
-                        int cat = word.getInt("category");
-                        int gender = word.getInt("gender");
+                        dt.replacePlaceholder("ACTION", "AddWord");
+                        dt.replacePlaceholder("ENGLISH", "");
+                        dt.replacePlaceholder("GERMAN", "");
+                        dt.replacePlaceholder("ID", "");
+                        
                         
                         String[] genders = GenderIdentifier.getGenders(conn);
                         String[] categories = CategoryIdentifier.getCategories(conn);
                         int i = 0;
                         String genderOptions = "";
                         for(String genderStr: genders){
-                            String selected = (i == gender)? " selected" : "";
                             genderOptions += "<option value=\""+ i++ +"\" "
-                                    + ""+selected+">"+genderStr+"</option>";
+                                    + ">"+genderStr+"</option>";
                         }
                         dt.replacePlaceholder("GENDERS", genderOptions);
                         
                         i = 0;
                         String categoryOptions = "";
                         for(String catStr: categories){
-                            String selected = (i == cat)? " selected" : "";
+                            
                             categoryOptions += "<option value=\""+ i++ +"\" "
-                                    + ""+selected+">"+catStr+"</option>";
+                                    + ">"+catStr+"</option>";
                         }
                         dt.replacePlaceholder("CATEGORIES", categoryOptions);
                         
@@ -128,12 +110,11 @@ public class EditWord extends HttpServlet {
                         Logger.getLogger(EditWord.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     
-                }
                 conn.close();
-                stat.close();
-                word.close();
+                
                      
-            }
+            }else
+                out.println("You do not have sufficient privilges to do this");
             
         } catch (FileNotFoundException ex) {
             Logger.getLogger(EditWord.class.getName()).log(Level.SEVERE, null, ex);
@@ -155,36 +136,36 @@ public class EditWord extends HttpServlet {
         PrintWriter out = response.getWriter();
         session = request.getSession();
         int type = (int)session.getAttribute("type");
-        if(type != 2)
-            out.print("Sorry you do not have permission to do that");
-        else{
+        
+        if(type == 2 || type == 1){
             String english = request.getParameter("english");
             String german = request.getParameter("german");
             String category = request.getParameter("category");
             String gender = request.getParameter("gender");
-            String id = request.getParameter("id");
-            String query = "UPDATE `word` SET "
-                    + " `translation` = ?, "
-                    + " `word` = ?, "
-                    + " `category` = ?, "
-                    + " `gender` = ? "
-                    + " WHERE `id` = ?;";
+            String query = ""
+                    + "INSERT INTO `word` (`translation`,`word`,`category`,"
+                    + "`gender`) " 
+                    + "VALUES (?, ?, ?, ?)";
             System.out.println(query);
             Connection conn = null;
             conn = SimpleDataSource.getConnection();
-            PreparedStatement stat = conn.prepareStatement(query);
+            PreparedStatement stat = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             stat.setString(1, english);
             stat.setString(2, german);
-            stat.setInt(3, Integer.parseInt(category)+1);
+            stat.setInt(3, Integer.parseInt(category) + 1);
             stat.setInt(4, Integer.parseInt(gender));
-            stat.setInt(5, Integer.parseInt(id));
             System.out.println("***********" + stat);
             int changed = stat.executeUpdate();
+            ResultSet rs = stat.getGeneratedKeys();
+            int last_inserted_id = 0;
+            if(rs.next())
+                last_inserted_id = rs.getInt(1);
             if(changed != 0)
-                response.sendRedirect("EditWord?id="+id+"&success=1");
+                response.sendRedirect("EditWord?id="+last_inserted_id+"&success=2");
             else
                 out.println("Oops, something went wrong please try again");
-        }
+        } else
+            out.print("Sorry you do not have permission to do that");
        
     }
     

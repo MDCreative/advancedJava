@@ -1,5 +1,4 @@
-<form class="ui form eight wide column" action="EditWord" method="POST">
-    <h2>Edit Word</h2>
+<form class="ui form eight wide column" action="{{ACTION}}" method="POST">
     <p class="field"><label>English</label><input type="text" name="english" value="{{ENGLISH}}"></p>
     <p class="field"><label>German</label><input type="text" name="german" value="{{GERMAN}}"></p>
     <p class="field"><label>Category</label>
@@ -16,6 +15,6 @@
     <div class="ui buttons">
       <input type="reset" class="ui button" value="Reset">
       <div class="or"></div>
-      <input type="submit" class="ui button green" value="Edit">
+      <input type="submit" class="ui button green" value="Submit">
     </div>
 </form>

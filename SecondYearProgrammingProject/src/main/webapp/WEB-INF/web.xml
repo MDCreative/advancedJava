@@ -40,6 +40,10 @@
         <servlet-name>ViewQuiz</servlet-name>
         <servlet-class>com.mycompany.secondyearprogrammingproject.ViewQuiz</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AddWord</servlet-name>
+        <servlet-class>com.mycompany.secondyearprogrammingproject.AddWord</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -79,6 +83,10 @@
     <servlet-mapping>
         <servlet-name>ViewQuiz</servlet-name>
         <url-pattern>/ViewQuiz</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddWord</servlet-name>
+        <url-pattern>/AddWord</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

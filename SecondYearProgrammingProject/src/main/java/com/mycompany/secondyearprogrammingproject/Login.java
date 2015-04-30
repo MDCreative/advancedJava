@@ -7,6 +7,9 @@ package com.mycompany.secondyearprogrammingproject;
  */
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -69,7 +72,7 @@ public class Login extends HttpServlet {
                 Statement stat = conn.createStatement();
                 ResultSet result = stat.executeQuery("SELECT * FROM `user` "
                         + "WHERE `username` = \"" + username + "\""
-                        + "AND `password` =\""+ password +"\";");
+                        + "AND `password` =\""+ Security.getHash(password) +"\";");
                 if (result.next()) { // if already a login
                     int userType = result.getInt("type");
                     String id = result.getString("user_id");
@@ -91,4 +94,10 @@ public class Login extends HttpServlet {
         out.println("</body>");
         out.println("</html>");
     }
-}
+    
+    
+    
+    
+    
+    
+ }
