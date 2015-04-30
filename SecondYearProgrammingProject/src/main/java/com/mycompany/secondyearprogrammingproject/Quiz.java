@@ -52,14 +52,24 @@ public class Quiz extends HttpServlet
         return returnValue;
     }
     
+    /**
+     * Updates incorrect and correct answer count in the database.
+     * 
+     * @param correct The string of correct question ids.
+     * @param incorrect The string of incorrect question ids.
+     * @throws SQLException 
+     */
     private void updateCorrectQuestions(String correct, String incorrect) throws SQLException
     {
+        //Split by space, join with comma
         String correctAnswers = join(correct.split(" "));
         String incorrectAnswers = join(incorrect.split(" "));
         
+        //Get connection and statement
         Connection connection = SimpleDataSource.getConnection();
         Statement statement = connection.createStatement();
         
+        //Execute updates
         String query = "UPDATE `word` SET `correct_ans` = (`correct_ans` + 1) WHERE `id` IN (" + correctAnswers + ");";
         statement.executeUpdate(query);
         
@@ -87,8 +97,15 @@ public class Quiz extends HttpServlet
             
         HttpSession session = request.getSession();
         
-        //int id = Integer.parseInt(session.getAttribute("id"));
-        int id = rand.nextInt(500);
+        int id = 123;
+
+        if(session != null)
+        {
+            String strid = (String)session.getAttribute("id");
+            
+            if(strid != null)
+                id = Integer.parseInt(strid);
+        }
         
         Connection connection = null;
         PreparedStatement statement = null;

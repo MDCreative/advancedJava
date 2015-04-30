@@ -17,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -55,29 +56,30 @@ public class TestHistoryServlet extends HttpServlet
             throws ServletException, IOException 
     {
         PrintWriter out = response.getWriter();
-        String userid = request.getParameter("id");
         
-        response.setContentType("application/json");
+        HttpSession session = request.getSession();
+        
+        int id = 123;
+        
+        if(session != null)
+        {
+            String strid = (String)session.getAttribute("id");
+            
+            if(strid != null)
+                id = Integer.parseInt(strid);
+        }
                 
-        if(userid == null)
-        {
-            out.println("null");
-            return;
-        }
+        response.setContentType("text/html");
         
-        String[] tests = getTestHistoryForUser(Integer.parseInt(userid));
+        DocTemplate template = new DocTemplate(this.getClass().getResource("/testHistory.html"));
         
-        out.print("[");
+        String formattedRows = "";
         
-        for(int i = 0; i < tests.length; i++)
-        {
-            if(i < tests.length - 1)
-                out.print(tests[i] + ",");
-            else
-                out.print(tests[i]);
-        }
+        for(String row : getTestHistoryForUser(id))
+            formattedRows += row + "\n";
         
-        out.print("]");
+        template.replacePlaceholder("tableData", formattedRows);
+        out.print(template.getTheDoc());
                 
     }
     
@@ -103,15 +105,16 @@ public class TestHistoryServlet extends HttpServlet
             {
                 int test_id  = rs.getInt("test_id");
                 int score    = rs.getInt("score");
-                //Date date    = rs.getDate("date");
                 Timestamp date = rs.getTimestamp("date");
                 String data  = rs.getString("data");
                 
                 testResults.add(
-                    "{\"test_id\": " + test_id + ", " + 
-                    "\"score\": "  + score + ", " + 
-                    "\"date\": \"" + date + "\", " + 
-                    "\"data\": \"" + data.replace("\"", "\\\"") + "\"}"
+                    "<tr>" +
+                        "<td>" + test_id + "</td>" +
+                        "<td>" + score   + "/20 (" + Math.round(score / 20.0 * 100.0) + "%) </td>" +
+                        "<td>" + date.toLocalDateTime().toLocalDate() + ", " +
+                                 date.toLocalDateTime().toLocalTime() + "</td>" +
+                    "</tr>"
                 );
             }
         }
