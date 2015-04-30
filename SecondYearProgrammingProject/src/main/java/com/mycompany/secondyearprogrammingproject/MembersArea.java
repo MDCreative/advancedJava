@@ -34,6 +34,7 @@ public class MembersArea extends HttpServlet {
         super();
         URL file = this.getClass().getResource("/header.html");
         dt = new DocTemplate(file);
+        
     }
 
     /**
@@ -53,7 +54,7 @@ public class MembersArea extends HttpServlet {
             
             
             session = request.getSession(); // get a session.
-            
+            dt.prepareNewDoc();
             int type = (int) session.getAttribute("type");
             if(type == 0){ // Student
                 dt.replacePlaceholder("TITLE", "Student Lobby");
@@ -65,7 +66,6 @@ public class MembersArea extends HttpServlet {
             }else if(type == 2 || type == 3){ // administrator
                 dt.replacePlaceholder("CONTENT", buildAdminDocument());
             }
-            System.out.println(dt.getTheDoc());
             out.print(dt.getTheDoc());  
             
         } catch (FileNotFoundException ex) {

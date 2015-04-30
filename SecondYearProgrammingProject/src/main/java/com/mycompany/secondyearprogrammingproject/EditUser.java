@@ -55,6 +55,7 @@ public class EditUser extends HttpServlet {
             
             session = request.getSession(); // get a session.
             
+            dt.prepareNewDoc();
             int type = (int) session.getAttribute("type");
             
             if(id == null){
