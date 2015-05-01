@@ -58,6 +58,10 @@ public class EditWord extends HttpServlet {
             String id = request.getParameter("id");
             
             session = request.getSession(); // get a session.
+            if(session.getAttribute("type") == null){
+                response.sendRedirect("index.html#failed");
+                return;
+            }
             
             dt.prepareNewDoc();
             int type = (int) session.getAttribute("type");
@@ -66,7 +70,7 @@ public class EditWord extends HttpServlet {
                 out.println("You must supply an id");
                 return;
             }
-            if(type != 2)
+            if(type < 1 && type > 2)
                 out.println("You do not have sufficient privilges to do this");
             else{
                 Connection conn = null;
@@ -117,7 +121,7 @@ public class EditWord extends HttpServlet {
                         i = 0;
                         String categoryOptions = "";
                         for(String catStr: categories){
-                            String selected = (i == cat)? " selected" : "";
+                            String selected = (i == cat - 1)? " selected" : "";
                             categoryOptions += "<option value=\""+ i++ +"\" "
                                     + ""+selected+">"+catStr+"</option>";
                         }
@@ -154,8 +158,12 @@ public class EditWord extends HttpServlet {
             throws ServletException, IOException, SQLException {
         PrintWriter out = response.getWriter();
         session = request.getSession();
+        if(session.getAttribute("type") == null){
+                response.sendRedirect("index.html#failed");
+                return;
+            }
         int type = (int)session.getAttribute("type");
-        if(type != 2)
+        if(type < 1 && type > 2)
             out.print("Sorry you do not have permission to do that");
         else{
             String english = request.getParameter("english");

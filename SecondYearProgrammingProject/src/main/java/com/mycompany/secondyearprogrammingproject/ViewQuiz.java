@@ -62,6 +62,10 @@ public class ViewQuiz extends HttpServlet
         
         //Get this user's session
         HttpSession session = request.getSession();
+        if(session.getAttribute("type") == null){
+                response.sendRedirect("index.html#failed");
+                return;
+            }
         
         if(session != null)
         {

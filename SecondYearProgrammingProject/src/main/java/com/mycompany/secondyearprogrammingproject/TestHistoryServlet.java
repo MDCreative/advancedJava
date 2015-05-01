@@ -61,6 +61,10 @@ public class TestHistoryServlet extends HttpServlet
         //Get the writer and session
         PrintWriter out = response.getWriter();
         HttpSession session = request.getSession();
+        if(session.getAttribute("type") == null){
+                response.sendRedirect("index.html#failed");
+                return;
+            }
         
         //Set up session id attempt string and numeric id
         String sessionID = "";

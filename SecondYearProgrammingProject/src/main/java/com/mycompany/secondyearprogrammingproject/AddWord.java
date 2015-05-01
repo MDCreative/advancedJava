@@ -54,6 +54,10 @@ public class AddWord extends HttpServlet {
             
             
             session = request.getSession(); // get a session.
+            if(session.getAttribute("type") == null){
+                response.sendRedirect("index.html#failed");
+                return;
+            }
             
             dt.prepareNewDoc();
             int type = (int) session.getAttribute("type");

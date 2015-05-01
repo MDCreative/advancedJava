@@ -54,6 +54,10 @@ public class DocTemplate {
         }
         theDoc = theDoc.replace("{{" + placeholder + "}}", html);
     }
+    
+    public static String replacePlaceholder(String placeholder, String html, String target){
+        return target.replace("{{" + placeholder + "}}", html);
+    }
 
     public String getTheDoc() {
         String response = new String(theDoc);

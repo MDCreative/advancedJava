@@ -80,6 +80,7 @@ public class Login extends HttpServlet {
                     session.setAttribute("type", userType); 
                     session.setAttribute("username", username); 
                     session.setAttribute("id", id); 
+                    session.setAttribute("email", result.getString("email"));
                     response.sendRedirect("MembersArea"); // goes to members area to check type.
                 } else { // if it is not already a login
                     response.sendRedirect("index.html#failed");

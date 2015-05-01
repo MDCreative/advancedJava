@@ -44,6 +44,18 @@
         <servlet-name>AddWord</servlet-name>
         <servlet-class>com.mycompany.secondyearprogrammingproject.AddWord</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LogOut</servlet-name>
+        <servlet-class>com.mycompany.secondyearprogrammingproject.LogOut</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteWord</servlet-name>
+        <servlet-class>com.mycompany.secondyearprogrammingproject.DeleteWord</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeleteUser</servlet-name>
+        <servlet-class>com.mycompany.secondyearprogrammingproject.DeleteUser</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/Login</url-pattern>
@@ -87,6 +99,18 @@
     <servlet-mapping>
         <servlet-name>AddWord</servlet-name>
         <url-pattern>/AddWord</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogOut</servlet-name>
+        <url-pattern>/LogOut</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteWord</servlet-name>
+        <url-pattern>/DeleteWord</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeleteUser</servlet-name>
+        <url-pattern>/DeleteUser</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

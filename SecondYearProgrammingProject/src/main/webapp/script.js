@@ -20,4 +20,17 @@ $(document).ready(function(){
                 .draw();
         } );
     } );
+    
+    
+    
+    $(document).on("click", ".removeButton", function(e){
+       console.log('here');
+       e.preventDefault();
+       $('.ui.modal').modal('show').modal('set active').modal({onApprove: function(){
+           console.log(e);
+           window.location.href = e.target.parentElement.href;
+       }});
+       
+       
+    });
 });

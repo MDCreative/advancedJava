@@ -1,0 +1,19 @@
+<form class="ui form eight wide column" action="EditUser" method="POST">
+    <h2>Edit User</h2>
+    <p class="field"><label>User Name</label><input type="text" name="username" value="{{USERNAME}}"></p>
+    <p class="field"><label>Email</label><input type="text" name="email" value="{{EMAIL}}"></p>
+    <p class="field"><label>Old password</label><input type="password" name="oldPass"></p>
+    <p class="field"><label>New password</label><input type="password" name="newPass"></p>
+    </p>
+    <input type="hidden" name="user_id" value="{{ID}}" />
+    <div class="ui buttons">
+      <input type="reset" class="ui button" value="Reset">
+      <div class="or"></div>
+      <input type="submit" class="ui button green" value="Edit">
+    </div>
+</form>
+
+<a class="ui button big" href="TestHistoryServlet" style="margin-top:20px !important">
+    View Test History
+</a>
+

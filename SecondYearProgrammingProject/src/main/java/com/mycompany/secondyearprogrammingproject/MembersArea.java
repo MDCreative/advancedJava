@@ -5,7 +5,6 @@ package com.mycompany.secondyearprogrammingproject;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,13 +27,15 @@ import javax.servlet.http.HttpSession;
  * @author jason_000
  */
 public class MembersArea extends HttpServlet {
+
     private DocTemplate dt;
     private HttpSession session;
-    public MembersArea(){
+
+    public MembersArea() {
         super();
         URL file = this.getClass().getResource("/header.html");
         dt = new DocTemplate(file);
-        
+
     }
 
     /**
@@ -50,68 +51,126 @@ public class MembersArea extends HttpServlet {
             throws ServletException, IOException {
         boolean success = request.getParameter("success") != null;
         response.setContentType("text/html;charset=UTF-8");
+        String deleted = request.getParameter("deleted");
+        String div = "";
+
         try (PrintWriter out = response.getWriter()) {
-            
-            
             session = request.getSession(); // get a session.
+            if (session.getAttribute("type") == null) {
+                response.sendRedirect("index.html#failed");
+                return;
+            }
+
             dt.prepareNewDoc();
             int type = (int) session.getAttribute("type");
-            if(type == 0){ // Student
+            if (type == 0) { // Student
                 dt.replacePlaceholder("TITLE", "Student Lobby");
-                dt.replacePlaceholder("CONTENT", "Content Here");
-               
-            }else if(type == 1){ // instructor
-                dt.replacePlaceholder("TITLE", "Instructor Lobby");
-                dt.replacePlaceholder("CONTENT", "Content Here");
-            }else if(type == 2 || type == 3){ // administrator
-                String div = "";
-                if(success)
+                dt.replacePlaceholder("CONTENT", buildStudentDocument());
+            } else if (type == 2 || type == 1) { // administrator
+                if (deleted != null) {
                     div = "<div class =\"ui positive message fadeOut\">"
-                        + "     <p>User added succesfully</p>"
-                        + "</div>";
-                dt.replacePlaceholder("CONTENT", div + buildAdminDocument());
+                            + "     <p>"
+                            + "Deletion successful"
+                            + "</p>"
+                            + "</div>";
+                }
+                if (success) {
+                    div = "<div class =\"ui positive message fadeOut\">"
+                            + "     <p>User added succesfully</p>"
+                            + "</div>";
+                }
+                dt.replacePlaceholder("CONTENT", div + buildAdminDocument(type));
             }
-            out.print(dt.getTheDoc());  
-            
+            out.print(dt.getTheDoc());
+
         } catch (FileNotFoundException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    private String buildAdminDocument(){
-        dt.replacePlaceholder("TITLE", "Administrator Lobby");
-        URL regStr = this.getClass().getResource("/register.html");
-        
-        String admin = ""
+
+    private String buildStudentDocument() {
+        dt.replacePlaceholder("TITLE", "Student Lobby");
+        String sLobby = ""
                 + "<div class=\"ui tabular menu\">\n"
-                + "     <div class=\"item\" data-tab=\"register\">Register Users</div>\n"
-                + "     <div class=\"item\" data-tab=\"users\">Users</div>\n"
-                + "     <div class=\"item\" data-tab=\"words\">Words</div>\n"
-                + "</div>";
-        admin += "<div class=\"ui tab\" data-tab=\"register\">";        
+                + "   <div class=\"item\" data-tab=\"profile\">Profile</div>\n"
+                + "   <div class=\"item\" data-tab=\"words\">Words</div>\n"
+                + "</div>"
+                + buildProfile()
+                + "<div class=\"ui tab\" data-tab=\"words\">"
+                + getWords(false)
+                + "</div>"
+                + "<script type=\"text/javascript\">$('.tabular.menu .item').tab();</script>";
+        return sLobby;
+    }
+
+    private String buildProfile() {
         try {
-            admin += DocTemplate.getHTMLString(regStr);
+            URL profileEdit = this.getClass().getResource("/editProfile.html");
+            String profileEditStr = DocTemplate.getHTMLString(profileEdit);
+            profileEditStr = DocTemplate.replacePlaceholder("USERNAME",
+                    (String) session.getAttribute("username"), profileEditStr);
+            profileEditStr = DocTemplate.replacePlaceholder("ID",
+                    (String) session.getAttribute("id"), profileEditStr);
+            profileEditStr = DocTemplate.replacePlaceholder("EMAIL",
+                    (String) session.getAttribute("email"), profileEditStr);
+            return "<div class=\"ui tab\" data-tab=\"profile\">"
+                    + profileEditStr
+                    + "</div>";
         } catch (URISyntaxException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         }
-        admin += "</div>";
-        admin += "<div class=\"ui tab\" data-tab=\"users\">";
-        admin += "<table class='ui table segment'>";
-        admin += "<thead><th></th><th>Username</th><th>Type</th>"+
-                "<th>Email</th></thead>";
-        admin += getMembers((String)session.getAttribute("id"))+"</table>";
-        admin += "</div>";
+        return null;
+    }
+
+    private String buildAdminDocument(int type) {
+        if (type == 2) {
+            dt.replacePlaceholder("TITLE", "Administrator Lobby");
+        } else if (type == 1) {
+            dt.replacePlaceholder("TITLE", "Instructor Lobby");
+        }
+        String adminMenu = "";
+        String admin = "";
+        String registrations = "";
+        if (type == 2) {
+            URL regStr = this.getClass().getResource("/register.html");
+            adminMenu += "<div class=\"item\" data-tab=\"register\">Register Users</div>\n";
+
+            try {
+                registrations += "<div class=\"ui tab\" data-tab=\"register\">";
+                registrations += DocTemplate.getHTMLString(regStr);
+                registrations += "</div>";
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        admin += "<div class=\"ui tabular menu\">\n"
+                + adminMenu
+                + "   <div class=\"item\" data-tab=\"profile\">Profile</div>\n"
+                + "   <div class=\"item\" data-tab=\"users\">Users</div>\n"
+                + "   <div class=\"item\" data-tab=\"words\">Words</div>\n"
+                + "</div>"
+                + registrations
+                + buildProfile()
+                + "<div class=\"ui tab\" data-tab=\"users\">"
+                + "<table class='ui table segment'>"
+                + "     <thead><th></th><th>Username</th><th>Type</th>"
+                + "         <th>Email</th></thead>"
+                + getMembers((String) session.getAttribute("id"), type) + "</table>"
+                + "</div>";
+
         admin += "<div class=\"ui tab\" data-tab=\"words\">";
-        admin += getWords();
+        admin += getWords(true);
         admin += "</div>";
         admin += "<script type=\"text/javascript\">$('.tabular.menu .item').tab();</script>";
         return admin;
     }
-    
-    private String getMembers(String id){
-        System.out.println("********** HERE **********");
+
+    private String getMembers(String id, int type) {
         try {
             SimpleDataSource.init("/database.properties");
         } catch (IOException ex) {
@@ -124,61 +183,72 @@ public class MembersArea extends HttpServlet {
         ResultSet result = null;
         String rows = "";
         try {
-            try{
-            conn = SimpleDataSource.getConnection();
-            stat = conn.createStatement();
-            result = stat.executeQuery("SELECT SQL_NO_CACHE * FROM `user`;");
-            while(result.next()){ // if not already a login
-                String name = result.getString("username");
-                String type = result.getString("type");
-                String email = result.getString("email");
-                String user_id = result.getString("user_id");
-                String classer = (user_id.equals(id))? " class=\"active\"" : "";
-                String row = "<tr"+classer+"><td>"
-                        + "<a href=\"EditUser?id="+user_id+"\"><i class=\"write icon\"></i></a>"
-                        + "<a href=\"TestHistoryServlet?id="+user_id+"\"><i class=\"student icon\"></i></a></td>"
-                        + "<td>" + name +"</td>";
-                String typeStr = "";
-                switch(Integer.parseInt(type)){
-                    case 2:
-                        typeStr = "Administrator";
-                        break;
-                    case 1:
-                        typeStr = "Instructor";
-                        break;
-                    default:
-                        typeStr = "User";
+            try {
+                conn = SimpleDataSource.getConnection();
+                stat = conn.createStatement();
+                result = stat.executeQuery("SELECT SQL_NO_CACHE * FROM `user`;");
+                while (result.next()) { // if not already a login
+                    String name = result.getString("username");
+                    String userType = result.getString("type");
+                    String email = result.getString("email");
+                    String user_id = result.getString("user_id");
+                    String classer = (user_id.equals(id)) ? " class=\"active\"" : "";
+                    if (!(type == 1 && "2".equals(userType))) {
+                        String row = "<tr" + classer + "><td>";
+                        if (type == 2) {
+                            row += "<a href=\"EditUser?id=" + user_id + "\"><i class=\"write icon\"></i></a>"
+                                    + "<a href=\"DeleteUser?id=" + user_id + "\" class=\"removeButton\">\n\t\t"
+                                    + "     <i class=\"ui icon remove red\"></i>\n\t"
+                                    + "</a>\n";
+                        }
+                        row += "<a href=\"TestHistoryServlet?id=" + user_id + "\"><i class=\"student icon\"></i></a></td>"
+                                + "<td>" + name + "</td>";
+                        String typeStr = "";
+                        switch (Integer.parseInt(userType)) {
+                            case 2:
+                                typeStr = "Administrator";
+                                break;
+                            case 1:
+                                typeStr = "Instructor";
+                                break;
+                            default:
+                                typeStr = "User";
+                        }
+                        row += "<td>" + typeStr + "</td>";
+                        row += "<td>" + email + "</td></tr>";
+                        rows += row;
+                    }
                 }
-                row += "<td>"+typeStr+"</td>";
-                row += "<td>"+email+"</td></tr>";
-                rows += row;
-            }
-            System.out.println("********** HERE2 **********");
             } finally {
-                if(result != null)result.close();
-                if(stat != null)stat.close();
-                if(conn != null)conn.close();
+                if (result != null) {
+                    result.close();
+                }
+                if (stat != null) {
+                    stat.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             }
             return rows;
         } catch (SQLException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
-        } finally{
-            
-            
+        } finally {
+
         }
         return null;
     }
-    
-    private String getWords(){
+
+    private String getWords(boolean canEdit) {
         String words = null;
         Connection conn = null;
         Statement stat = null;
         ResultSet result = null;
         String rows = "";
         try {
-            
+
             SimpleDataSource.init("/database.properties");
-            
+
             conn = SimpleDataSource.getConnection();
             String[] genders = GenderIdentifier.getGenders(conn);
             String query = "SELECT * FROM `word`";
@@ -191,28 +261,50 @@ public class MembersArea extends HttpServlet {
             size = result.getRow();
             result.beforeFirst();
             String[] catNames = new String[size];
-            while(result.next()){
+            while (result.next()) {
                 catNames[i] = result.getString("name");
                 i++;
             }
             result = stat.executeQuery(query);
-            
-            while(result.next()){
+
+            while (result.next()) {
                 String row = "";
                 row += "<tr>\n"
-                        + "<td>\n\t"
-                        + "     <a href=\"EditWord?id=" + result.getInt("id") + "\">\n\t\t"
-                        + "         <i class=\"ui icon write\"></i>\n\t"
-                        + "     </a>\n"
-                        + "</td>\n"
+                        + "<td>\n\t";
+                if (canEdit) {
+                    row += "       <a href=\"EditWord?id=" + result.getInt("id") + "\">\n\t\t"
+                            + "         <i class=\"ui icon write\"></i>\n\t"
+                            + "     </a>\n"
+                            + "     <a href=\"DeleteWord?id=" + result.getInt("id") + "\" class=\"removeButton\">\n\t\t"
+                            + "         <i class=\"ui icon remove red\"></i>\n\t"
+                            + "     </a>\n";
+                }
+                row += "  </td>\n"
                         + "<td>" + result.getString("word") + "</td>"
                         + "<td>" + result.getString("translation") + "</td>"
                         + "<td>" + catNames[result.getInt("category") - 1] + "</td>"
                         + "<td>" + genders[result.getInt("gender")] + "</td>"
-                    +  "</tr>";
+                        + "</tr>";
                 rows += row;
             }
+            String wordModal = ""
+                    + "<div class=\"ui modal\">\n"
+                    + "  <i class=\"close icon\"></i>\n"
+                    + "  <div class=\"header\">\n"
+                    + "    Are you sure?\n"
+                    + "  </div>\n"
+                    + "  <div class=\"content\">\n"
+                    + "    <div class=\"description\">\n"
+                    + "      Are you sure you want to delete this?\n"
+                    + "    </div>\n"
+                    + "  </div>\n"
+                    + "  <div class=\"actions\">\n"
+                    + "    <div class=\"ui button actions positive\">Yes</div>\n"
+                    + "    <div class=\"ui button actions negative\">No</div>\n"
+                    + "  </div>\n"
+                    + "</div>";
             words = rows;
+
             conn.close();
             result.close();
             String tableHead = ""
@@ -236,11 +328,11 @@ public class MembersArea extends HttpServlet {
                     + "         </tr>"
                     + "     </tfoot>"
                     + "     <tbody>";
-            
+
             String tableFoot = ""
                     + "     </tbody>"
                     + "</table>";
-            return tableHead + words + tableFoot;
+            return tableHead + words + tableFoot + wordModal;
         } catch (IOException ex) {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {

@@ -38,6 +38,11 @@ public class Register extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Set response content type
+        HttpSession session = request.getSession();
+        if(session.getAttribute("type") == null){
+                response.sendRedirect("index.html#failed");
+                return;
+            }
         response.setContentType("text/html");
         
         String username = request.getParameter("username");
@@ -53,7 +58,6 @@ public class Register extends HttpServlet {
         
         PrintWriter out = response.getWriter();
         
-        HttpSession session = request.getSession(); 
         int type = (int) session.getAttribute("type");
         if(type != 2){
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
