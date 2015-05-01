@@ -1,10 +1,5 @@
 package com.mycompany.secondyearprogrammingproject;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -23,11 +18,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Uses POST to get a username and password from a user and displays the
- * username along with a greeting
- *
- * @author Jason Hall, James Jackson
- */
+ * The Login servlet,which builds the login page
+ * 
+ * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class Login extends HttpServlet {
 
     /**

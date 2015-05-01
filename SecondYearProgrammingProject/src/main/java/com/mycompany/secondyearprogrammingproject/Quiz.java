@@ -19,6 +19,8 @@ import javax.servlet.http.HttpSession;
  * 
  * @author Benjamin Williams <eeu222@bangor.ac.uk>
  * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
 */
 public class Quiz extends HttpServlet
 {    
@@ -170,7 +172,7 @@ public class Quiz extends HttpServlet
         }
     }
     
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    
     /**
      * Handles the HTTP <code>GET</code> method.
      *

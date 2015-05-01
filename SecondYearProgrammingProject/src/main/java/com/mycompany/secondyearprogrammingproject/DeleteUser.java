@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.secondyearprogrammingproject;
 
 import java.io.IOException;
@@ -21,9 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- *
- * @author jacko
- */
+ * The DeleteUser servlet, which allows for the removal of a user
+ * 
+ * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class DeleteUser extends HttpServlet {
 
     /**

@@ -1,10 +1,5 @@
 package com.mycompany.secondyearprogrammingproject;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,14 +18,21 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- *
- * @author jason_000
- */
+ * The MembersArea servlet,which builds the page
+ * 
+ * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class MembersArea extends HttpServlet {
 
     private DocTemplate dt;
     private HttpSession session;
-
+    
+   /*
+    *Constructor initialises instance variables
+    */
     public MembersArea() {
         super();
         URL file = this.getClass().getResource("/header.html");
@@ -87,7 +89,11 @@ public class MembersArea extends HttpServlet {
             Logger.getLogger(MembersArea.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    /**
+     * Builds the student lobby HTML document String
+     * 
+     * @return sLobby String HTML for student doc
+     */
     private String buildStudentDocument() {
         dt.replacePlaceholder("TITLE", "Student Lobby");
         String sLobby = ""
@@ -102,7 +108,12 @@ public class MembersArea extends HttpServlet {
                 + "<script type=\"text/javascript\">$('.tabular.menu .item').tab();</script>";
         return sLobby;
     }
-
+    
+    /**
+     * Builds the profile, displaying individual attributes
+     * 
+     * @return HTML String holding user information
+     */
     private String buildProfile() {
         try {
             URL profileEdit = this.getClass().getResource("/editProfile.html");
@@ -124,6 +135,13 @@ public class MembersArea extends HttpServlet {
         return null;
     }
 
+    /**
+     * Builds the admin lobby HTML document String
+     * 
+     * @param type int representing user type
+     *
+     * @return admin the HTML String for admin doc
+     */
     private String buildAdminDocument(int type) {
         if (type == 2) {
             dt.replacePlaceholder("TITLE", "Administrator Lobby");
@@ -170,6 +188,14 @@ public class MembersArea extends HttpServlet {
         return admin;
     }
 
+    /**
+     * Gets the members within the DB and allows for editing
+     * 
+     * @param id the members ID
+     * @param type the users account type
+     * 
+     * @return rows String html of users within DB
+     */
     private String getMembers(String id, int type) {
         try {
             SimpleDataSource.init("/database.properties");
@@ -239,6 +265,12 @@ public class MembersArea extends HttpServlet {
         return null;
     }
 
+    /**
+     * Builds the a String holding the words table data
+     * 
+     * @param canEdit 
+     * @return words String which includes setup of table
+     */
     private String getWords(boolean canEdit) {
         String words = null;
         Connection conn = null;

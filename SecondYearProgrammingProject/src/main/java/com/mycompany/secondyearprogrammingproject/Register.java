@@ -1,10 +1,5 @@
 package com.mycompany.secondyearprogrammingproject;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -20,9 +15,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- *
- * @author jason_000
- */
+ * The Register servlet, which allows for the addition of a user
+ * 
+ * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class Register extends HttpServlet {
 
     /**

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.secondyearprogrammingproject;
 
 import java.sql.Connection;
@@ -14,9 +9,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author jacko
- */
+ * The GenderIdentifier servlet, which returns a representation of the gender type
+ * 
+ * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class GenderIdentifier {
     /**
      * Static method to return the gender string of a given id between 0 and 5 inclusive
@@ -39,7 +38,11 @@ public class GenderIdentifier {
         }
         return null;
     }
-    
+    /**
+     * Static method to return the gender array of a given id 
+     * @param conn the connection to DB
+     * @return genNames array of genders
+     */
     public static String[] getGenders(Connection conn){
         try {
             Statement stat = conn.createStatement();
