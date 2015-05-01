@@ -26,10 +26,20 @@ $(document).ready(function(){
     $(document).on("click", ".removeButton", function(e){
        console.log('here');
        e.preventDefault();
-       $('.ui.modal').modal('show').modal('set active').modal({onApprove: function(){
-           console.log(e);
-           window.location.href = e.target.parentElement.href;
-       }});
+       e.stopImmediatePropagation();
+       
+       $('.ui.modal').modal('show').modal('set active').modal({
+           closable: false,
+           onApprove: function(){
+               window.location.href = e.target.parentElement.href;  
+           },
+           onDeny: function(){
+               $('.ui.modal').modal('hide');
+               $('.ui.modal').removeClass("hidden");
+               $('.ui.modal').transition('stop');
+           }
+        });
+       
        
        
     });
