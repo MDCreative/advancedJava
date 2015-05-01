@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.secondyearprogrammingproject;
 
 import java.io.BufferedReader;
@@ -22,9 +17,13 @@ import java.util.logging.Logger;
 import static javax.servlet.SessionTrackingMode.URL;
 
 /**
- *
- * @author jacko
- */
+ * The DocTemplate servlet,which sets and returns the HTML document
+ * 
+ * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class DocTemplate {
 
     private String theDoc;
@@ -34,6 +33,11 @@ public class DocTemplate {
         original = getHtmlStr(source);
     }
 
+     /**
+     * Get HTML string from source
+     * 
+     * @param source URL
+     */
     public DocTemplate(URL source) {
         try {
             original = getHtmlStr(source);
@@ -44,10 +48,19 @@ public class DocTemplate {
         }
     }
 
+    /**
+     * Set theDoc from String original HTML source
+     */
     public void prepareNewDoc() {
         theDoc = new String(original);
     }
 
+    /**
+     * Replace placeholder in the document with String
+     * 
+     * @param placeholder holds position for insert of String
+     * @param html the String too be inserted into placeholder
+     */
     public void replacePlaceholder(String placeholder, String html) {
         if (theDoc == null) {
             throw new IllegalStateException("Must call prepareNewDoc(), prior to setting placeholder values.");
@@ -55,16 +68,37 @@ public class DocTemplate {
         theDoc = theDoc.replace("{{" + placeholder + "}}", html);
     }
     
+    /**
+     * Static method to replace placeholder in the document with String
+     * 
+     * @param placeholder holds position for insert of String
+     * @param html the String to be inserted into placeholder
+     * @param target the location where the placeholder is found
+     * 
+     * @return Updated String
+     */
     public static String replacePlaceholder(String placeholder, String html, String target){
         return target.replace("{{" + placeholder + "}}", html);
     }
-
+    
+    /**
+     * Returns the document in String format
+     * 
+     * @return response the doc in String format
+     */
     public String getTheDoc() {
         String response = new String(theDoc);
         theDoc = null;
         return response;
     }
 
+    /**
+     * Gets the html in String format
+     * 
+     * @param file to encode 
+     * 
+     * @return theString 
+     */
     private String getHtmlStr(String file) {
         try {
             byte[] encoded;
@@ -77,6 +111,13 @@ public class DocTemplate {
         return null;
     }
 
+    /**
+     * Converts contents of URL to a String
+     * 
+     * @param is URL to be converted to a String
+     * 
+     * @return html 
+     */
     private String getHtmlStr(URL is) throws URISyntaxException, FileNotFoundException, IOException {
         URI in = is.toURI();
         String html = "";
@@ -92,6 +133,13 @@ public class DocTemplate {
         return html;
     }
 
+    /**
+     * Static method which Converts contents of URL to a String
+     * 
+     * @param is URL to be converted to a String
+     * 
+     * @return html 
+     */
     public static String getHTMLString(URL is) throws URISyntaxException, FileNotFoundException, IOException {
         URI in = is.toURI();
         String html = "";

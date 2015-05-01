@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.secondyearprogrammingproject;
 
 import java.io.UnsupportedEncodingException;
@@ -12,16 +7,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author jacko
- */
+ * The Security servlet,which is responsible for the hashing of passwords to and from the DB
+ * 
+ * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class Security {
     
     //http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
     
-    
-    
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    
+    /**
+     * Converts bytes to hex as a hashing operation
+     * 
+     * @param bytes the values to hash
+     * @return hexChars as String which is the new hash code
+     */
     private static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ ) {
@@ -32,7 +36,12 @@ public class Security {
         return new String(hexChars);
     }
     
-    
+    /**
+     * Takes a String to be hashed
+     * 
+     * @param toHash the String password to be hashed
+     * @return 
+     */
     public static String getHash(String toHash){
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

@@ -17,7 +17,9 @@ import javax.servlet.http.HttpSession;
  * 
  * @author Benjamin Williams <eeu222@bangor.ac.uk>
  * @author Jason Hall <eeu23e@bangor.ac.uk>
- */
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class ViewQuiz extends HttpServlet 
 {
     private final int SPECIAL_USER_INVALID = -1;

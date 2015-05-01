@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.mycompany.secondyearprogrammingproject;
 
 import java.sql.Connection;
@@ -14,14 +10,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author jacko
- */
+ * The CategoryIdentifier servlet, which returns a representation of a category
+ * 
+ * @author Benjamin Williams <eeu222@bangor.ac.uk>
+ * @author Jason Hall <eeu23e@bangor.ac.uk>
+ * @author Liam Chapman <eeu239@bangor.ac.uk>
+ * @author James Jackson <eeu203@bangor.ac.uk>
+*/
 public class CategoryIdentifier {
     /**
-     * Static method to return the gender string of a given id between 0 and 5 inclusive
-     * @param gender the id of the gender (0 - 5)
-     * @return the string representation of the gender
+     * Static method to return the category string of a given id 
+     * @param category the id of the category
+     * @param conn connection to database
+     * @return the string representation of the category
      */
     public static String getCategory(int category, Connection conn){
         try {
@@ -40,6 +41,12 @@ public class CategoryIdentifier {
         return null;
     }
     
+   /**
+     * Static method to return the category array of a given id 
+     * @param category the id of the category
+     * @param conn connection to database
+     * @return the array representation of the category
+     */
     public static String[] getCategories(Connection conn){
         try {
             Statement stat = conn.createStatement();
