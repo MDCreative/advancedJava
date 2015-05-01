@@ -154,7 +154,7 @@ public class EditUser extends HttpServlet {
         Connection conn = null;
         conn = SimpleDataSource.getConnection();
         boolean updatingPass = false;
-        if (oldPass != null) {
+        if (!"".equals(oldPass)) {
             PreparedStatement stat = conn.prepareStatement("SELECT `password` FROM `user` WHERE `user_id` = ?;");
             stat.setInt(1, Integer.parseInt(sessIdHolder));
             ResultSet rs = stat.executeQuery();
